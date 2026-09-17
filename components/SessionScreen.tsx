@@ -18,12 +18,13 @@ type Props = {
   transcript: TranscriptLine[];
   results: WordResult[];
   turnsDone: number;
+  spokenIndex: number;
   onEnd: () => void;
 };
 
 type Mode = "connecting" | "listening" | "speaking";
 
-export default function SessionScreen({ track, language, words, transcript, results, turnsDone, onEnd }: Props) {
+export default function SessionScreen({ track, language, words, transcript, results, turnsDone, spokenIndex, onEnd }: Props) {
   const lang = LANGUAGES[language];
   const { status } = useConversationStatus();
   const { mode: agentMode } = useConversationMode();
@@ -34,7 +35,7 @@ export default function SessionScreen({ track, language, words, transcript, resu
     bottomRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [transcript]);
 
-  const index = currentIndex(words, results, transcript, turnsDone);
+  const index = currentIndex(words, results, transcript, turnsDone, spokenIndex);
   const current = words[index];
   const currentResult = current && findResult(results, current); // logged, feedback being spoken
 

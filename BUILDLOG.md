@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; prompt v5 live + turn-end debounce → waiting for **4.19** re-check → Phase 5
-- **Next step (user):** 4.19, 2 words on prod: the card must not switch during feedback, only ~1 s after "Ready for word N?"; is the extra yes-step OK? Then Phase 5 (Kannada session, Android + iPhone).
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; audio-synced card + prompt v6 → waiting for **4.21** (user pastes v6, publishes, re-checks) → Phase 5
+- **Next step (user):** 4.21, paste the prompt v6 system prompt → Publish → 2 words on prod: no "yes" step, and the card switches as the coach says "Word 2 of 5". Then Phase 5 (Kannada session, Android + iPhone).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,24 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.19 → 4.20 audio-synced word card + prompt v6
+- User re-check of the debounce: the card stays put during feedback ✅. But the v5 "Ready for word N?" → "yes" step **feels irritating every word**.
+- Goal: no pause, and the card switches exactly when "Word N of 5" is heard.
+- **Evidence** (raw WebSocket probe, first_message override "Great answer! Ready? Word 2 of 5: refund…"):
+  - `audio` events carry `alignment {chars, char_start_times_ms, char_durations_ms}`; times **restart at 0 per chunk**; "Word 2" and " of 5:" came in **different chunks**.
+  - All audio for ~4 s of speech arrived within ~1.4 s; `agent_response` text arrived only at the end.
+  - Output format `pcm_16000`.
+  - SDK source: `VoiceConversation.handleAudio` calls `onAudioAlignment` then `onAudio` for the same event; mode → "listening" when the playback worklet reports finished.
+- **Implementation**
+  - `lib/session.ts` `createCueTracker(onCue, now)`: `alignment()` stashes a chunk; `audio(b64)` appends its chars with absolute offsets (`audioMs` + char start), scans for `CUE` (`1-5|one…five` `of|/` `5|five`), and schedules `onCue(n)` at `anchor + offset`. `anchor = now − audioMs`, reset when audio resumes after `drained()` (mode → listening). `interrupt()` cancels unplayed cues. `pcmMs(b64) = len·3/4/32` (pcm_16000). `ponytail:` format hard-coded.
+  - `currentIndex(..., spokenIndex)`: spokenIndex is the primary signal; turn-based log/transcript rules remain as fallback.
+  - `app/page.tsx`: `onAudioAlignment`, `onAudio`, `onInterruption` → tracker; `onModeChange` listening → `drained()`; `spokenIndex` state → SessionScreen.
+  - Prompt **v6**: removed PAUSE/"yes" steps; step 6 NEXT = in the same turn, "Word N of 5" (English, digits).
+- Tests 9/9 ✅: a fake-timer playback timeline (cue split across chunks fires at play time, not arrival; re-anchor after a 2 s drain; interrupted cue dropped) + `pcmMs`. build ✅ tsc ✅ lint ✅.
+- Not verified live yet (needs the user's voice session).
 
 ---
 

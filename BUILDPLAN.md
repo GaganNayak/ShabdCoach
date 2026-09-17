@@ -71,7 +71,9 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.16 (C)** Prompt v5: the feedback turn ends with "Ready for word N?" and waits; the next word starts in its own turn. No code change.
 - [x] **4.17 (G)** Prompt v5 live: pause "Ready for word 2?" ✅, card switches before the next explanation ✅, but it switched **during** the previous word's feedback.
 - [x] **4.18 (C)** Turn end = 1.2 s of continuous silence (`TURN_END_MS`), so mid-reply audio gaps no longer count; auto hang-up uses the same debounce.
-- [ ] **4.19 (G)** Re-check 2 words: the card switches only after "Ready for word N?"; also judge whether the extra "yes" step feels slow.
+- [x] **4.19 (G)** Re-check: the card stays during feedback ✅; the extra "yes" step is **irritating** every word ❌.
+- [x] **4.20 (C)** Audio-synced card: `createCueTracker` switches the card when the coach's audio *plays* "Word N of 5" (alignment + PCM playback clock). Prompt v6 removes the pause.
+- [ ] **4.21 (G)** Paste prompt v6 → Publish → 2 words: no "yes" step; the card switches right as the coach says "Word 2 of 5".
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)

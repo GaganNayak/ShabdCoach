@@ -56,21 +56,82 @@ export function upsertResult(results: WordResult[], r: WordResult): WordResult[]
 }
 
 const NUM: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5 };
+const CUE = /\b([1-5]|one|two|three|four|five)\s*(?:of|\/)\s*(?:5|five)\b/gi; // "Word 2 of 5" / "two of five"
+const cueNumber = (m: RegExpMatchArray) => NUM[m[1].toLowerCase()] ?? Number(m[1]);
 
-// Index of the word being taught (words.length = all done). The agent logs a word *before* speaking its
-// feedback, so a log or a "Word 2 of 5" cue only moves the card once that coach turn has finished.
-export function currentIndex(words: Word[], results: WordResult[], transcript: TranscriptLine[], turnsDone: number): number {
+// Index of the word being taught (words.length = all done).
+// spokenIndex: set by the cue tracker the moment the audio says "Word N of 5" (primary signal).
+// Fallback: a log or a transcript cue counts once the coach turn in which it arrived has finished.
+export function currentIndex(words: Word[], results: WordResult[], transcript: TranscriptLine[], turnsDone: number, spokenIndex = 0): number {
   const finished = (turn = -1) => turn < turnsDone;
-  let i = 0;
+  let i = spokenIndex;
   words.forEach((w, idx) => {
     const r = findResult(results, w);
     if (r && finished(r.turn)) i = Math.max(i, idx + 1);
   });
   for (const line of transcript) {
-    const m = line.role === "agent" && finished(line.turn) && line.text.match(/\b([1-5]|one|two|three|four|five)\s*(?:of|\/)\s*(?:5|five)\b/i);
-    if (m) i = Math.max(i, (NUM[m[1].toLowerCase()] ?? Number(m[1])) - 1);
+    if (line.role !== "agent" || !finished(line.turn)) continue;
+    for (const m of line.text.matchAll(CUE)) i = Math.max(i, cueNumber(m) - 1);
   }
   return Math.min(i, words.length);
+}
+
+type Alignment = { chars: string[]; char_start_times_ms: number[]; char_durations_ms: number[] };
+
+// Agent output audio is pcm_16000 (16-bit mono) = 32 bytes per ms.
+// ponytail: format hard-coded; read it from conversation metadata if the agent's output format changes.
+export const pcmMs = (base64: string) => (base64.length * 3) / 4 / 32;
+
+// Calls onCue(n) when the coach's audio *plays* "Word n of 5". Audio chunks (with per-chunk character
+// timings) arrive much faster than they play, so keep a playback clock: `anchor` = when audio offset 0 would
+// have started playing. Re-anchor whenever playback drained (mode → listening) and audio resumes.
+export function createCueTracker(onCue: (n: number) => void, now = () => performance.now()) {
+  let text = "";
+  let times: number[] = [];
+  let audioMs = 0;
+  let anchor = 0;
+  let drained = true;
+  let pending: Alignment | null = null;
+  const scheduled = new Map<number, ReturnType<typeof setTimeout>>();
+  const fired = new Set<number>();
+
+  return {
+    alignment(a: Alignment) {
+      pending = a; // the SDK calls onAudioAlignment right before onAudio for the same chunk
+    },
+    audio(base64: string) {
+      if (drained) {
+        anchor = now() - audioMs;
+        drained = false;
+      }
+      if (pending) {
+        pending.chars.forEach((c, i) => {
+          text += c;
+          times.push(audioMs + pending!.char_start_times_ms[i]);
+        });
+        pending = null;
+        for (const m of text.matchAll(CUE)) {
+          const n = cueNumber(m);
+          if (fired.has(n) || scheduled.has(n)) continue;
+          const delay = Math.max(0, anchor + times[m.index!] - now());
+          scheduled.set(n, setTimeout(() => (scheduled.delete(n), fired.add(n), onCue(n)), delay));
+        }
+      }
+      audioMs += pcmMs(base64);
+    },
+    drained() {
+      drained = true;
+    },
+    // Learner cut in: unplayed audio is dropped, so forget cues that haven't played yet.
+    interrupt() {
+      scheduled.forEach(clearTimeout);
+      scheduled.clear();
+      text = "";
+      times = [];
+      pending = null;
+      drained = true;
+    },
+  };
 }
 
 // V3 voices take delivery tags like [slow]…[/slow]; keep them out of the on-screen transcript.

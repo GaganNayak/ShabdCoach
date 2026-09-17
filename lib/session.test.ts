@@ -1,8 +1,8 @@
 // Run: npm test  (Node 24 runs .ts directly via type stripping)
-import { test } from "node:test";
+import { mock, test } from "node:test";
 import assert from "node:assert/strict";
 import { TRACKS } from "./words.ts";
-import { LANGUAGES, buildWordList, cleanSpeech, currentIndex, findResult, pickWords, upsertResult } from "./session.ts";
+import { LANGUAGES, buildWordList, cleanSpeech, createCueTracker, currentIndex, findResult, pcmMs, pickWords, upsertResult } from "./session.ts";
 
 test("word bank: 10 complete words per track", () => {
   for (const [id, t] of Object.entries(TRACKS)) {
@@ -55,8 +55,53 @@ test("currentIndex moves only after the coach turn that followed the log/cue", (
   assert.equal(currentIndex(ws, [], [agent("We handled 15 of 20 calls.", 0)], 1), 0);
   assert.equal(currentIndex(ws, [], [{ role: "user", text: "5 of 5", turn: 0 }], 1), 0);
   assert.equal(currentIndex(ws, ws.map((w) => r(w.word, 0)), [], 1), 5);
+  assert.equal(currentIndex(ws, [], [], 0, 2), 2, "spoken cue wins immediately");
 });
 
 test("cleanSpeech strips voice delivery tags", () => {
   assert.equal(cleanSpeech("Word two of five, [slow] patience. [/slow] Patience ka matlab"), "Word two of five, patience. Patience ka matlab");
+});
+
+test("cue tracker fires when the audio *plays* 'Word 2 of 5', across chunks and playback gaps", () => {
+  mock.timers.enable({ apis: ["setTimeout"] });
+  let clock = 0;
+  const tick = (ms: number) => ((clock += ms), mock.timers.tick(ms));
+  const cues: number[] = [];
+  const t = createCueTracker((n) => cues.push(n), () => clock);
+  const chunk = (s: string, stepMs: number) => ({ chars: [...s], char_start_times_ms: [...s].map((_, i) => i * stepMs), char_durations_ms: [...s].map(() => stepMs) });
+  const audio = (ms: number) => "A".repeat((ms * 32 * 4) / 3); // base64 length for `ms` of pcm_16000
+
+  assert.equal(Math.round(pcmMs(audio(500))), 500);
+  // Feedback chunk: 1000 ms of audio, arrives at t=0.
+  t.alignment(chunk("Nice! Ready? ", 10));
+  t.audio(audio(1000));
+  // Next chunk arrives 50 ms later (long before it plays): "Word 2" at offset 1000 ms, " of 5" split into another chunk.
+  tick(50);
+  t.alignment(chunk("Word 2", 10));
+  t.audio(audio(300));
+  t.alignment(chunk(" of 5: refund", 10));
+  t.audio(audio(700));
+  // "2" is char 5 of the chunk that starts at 1000 ms → plays at 1050 ms.
+  tick(990); // clock 1040
+  assert.deepEqual(cues, [], "not yet played");
+  tick(20); // clock 1060
+  assert.deepEqual(cues, [2]);
+
+  // Playback drains (tool call gap), then audio resumes 2 s later: re-anchor to the resume time.
+  t.drained();
+  tick(2000); // clock 3060, audioMs = 2000
+  t.alignment(chunk("Great. Word 3 of 5", 10)); // "3" at char 12 → 120 ms after resume
+  t.audio(audio(500));
+  tick(110);
+  assert.deepEqual(cues, [2]);
+  tick(20);
+  assert.deepEqual(cues, [2, 3]);
+
+  // Interruption before "Word 4" plays → dropped.
+  t.alignment(chunk("Word 4 of 5", 100));
+  t.audio(audio(1000));
+  t.interrupt();
+  tick(5000);
+  assert.deepEqual(cues, [2, 3]);
+  mock.timers.reset();
 });

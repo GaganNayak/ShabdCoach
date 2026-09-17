@@ -81,7 +81,7 @@ type WordResult = { word: string; recalled: boolean; used_correctly: boolean; ti
 type Phase = "setup" | "session" | "summary";
 type TranscriptLine = { role: "agent" | "user"; text: string; turn?: number };
 ```
-`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex(words, results, transcript, turnsDone)` (the card moves past a logged word, or to a "Word N of 5" / "two of five" cue, only once the coach turn in which it happened has finished), `cleanSpeech` (strips V3 `[slow]` tags).
+`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex(words, results, transcript, turnsDone)` (the card moves past a logged word, or to a "Word N of 5" / "two of five" cue, only once the coach turn in which it happened has finished), `cleanSpeech` (strips V3 `[slow]` tags), `pcmMs`, `createCueTracker(onCue)` (fires when the audio *plays* "Word N of 5").
 
 ### 5.2 Language config
 | LanguageId | `overrides.agent.language` | `{{language}}` value | Meaning field used |
@@ -111,6 +111,7 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 | Word list missing/empty | Agent says the lesson did not load and stops (prompt v3); page should never start without 5 words |
 | Off-topic question | Agent refuses and returns to the current word (prompt v3 "Scope") |
 | Agent logs the same word twice | Replace the earlier entry for that word |
+| Card timing (primary) | `onAudioAlignment` + `onAudio` feed `createCueTracker`: per-chunk char timings + PCM length build a playback clock (re-anchored when playback drains; cleared on `onInterruption`). Card index = max(spokenIndex, fallbacks). |
 | `log_result` arrives before the feedback is spoken | Dot updates at once; the card stays and shows Learned ✓ / Keep practising + tip; it moves on when that coach turn ends (page counts a turn as finished after `TURN_END_MS` = 1.2 s of continuous listening, in `turnsDone`) |
 | Agent skips `log_result` for a word | Card still advances on "Word N of 5"; the dot shows "–"; the summary shows "Not reached" for it. Prompt v4 makes the call mandatory. |
 | Unsupported / in-app browser (no WebRTC) | Advise opening in Chrome/Safari |

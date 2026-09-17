@@ -10,6 +10,7 @@ import {
   LANGUAGES,
   buildWordList,
   cleanSpeech,
+  createCueTracker,
   pickWords,
   upsertResult,
   type LanguageId,
@@ -44,6 +45,8 @@ function App() {
   const [summary, setSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [turnsDone, setTurnsDone] = useState(0); // finished coach speaking turns
+  const [spokenIndex, setSpokenIndex] = useState(0); // word the coach's audio has reached ("Word N of 5")
+  const cues = useRef<ReturnType<typeof createCueTracker>>(null);
   const turns = useRef(0); // same, readable synchronously inside tool/message callbacks
   const spoke = useRef(false); // coach spoke since the last finished turn
   const silence = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -74,6 +77,9 @@ function App() {
     spoke.current = false;
     clearTimeout(silence.current);
     setTurnsDone(0);
+    setSpokenIndex(0);
+    cues.current?.interrupt();
+    cues.current = createCueTracker((n) => setSpokenIndex((i) => Math.max(i, n - 1)));
     ending.current = false;
     setPhase("session");
 
@@ -117,12 +123,16 @@ function App() {
         heard.current = true;
         setTranscript((t) => [...t, { role, text: cleanSpeech(message), turn: turns.current }]);
       },
+      onAudioAlignment: (a) => cues.current?.alignment(a),
+      onAudio: (base64) => cues.current?.audio(base64),
+      onInterruption: () => cues.current?.interrupt(),
       onModeChange: ({ mode }) => {
         clearTimeout(silence.current);
         if (mode === "speaking") {
           spoke.current = true;
           return;
         }
+        cues.current?.drained(); // playback buffer ran empty
         silence.current = setTimeout(() => {
           if (spoke.current) setTurnsDone(++turns.current);
           spoke.current = false;
@@ -154,7 +164,7 @@ function App() {
         />
       )}
       {phase === "session" && (
-        <SessionScreen track={track} language={language} words={words} transcript={transcript} results={results} turnsDone={turnsDone} onEnd={endSession} />
+        <SessionScreen track={track} language={language} words={words} transcript={transcript} results={results} turnsDone={turnsDone} spokenIndex={spokenIndex} onEnd={endSession} />
       )}
       {phase === "summary" && (
         <SummaryScreen words={words} results={results} summary={summary} onAgain={start} onChange={() => setPhase("setup")} />
