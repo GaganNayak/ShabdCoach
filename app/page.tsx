@@ -20,7 +20,7 @@ import {
 } from "@/lib/session";
 
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
-const GREETING_OVERRIDE = false; // flip to true once the agent allows the first-message override
+const GREETING_OVERRIDE = true; // agent allows the first-message override (verified 2026-09-17)
 
 export default function Home() {
   return (
@@ -68,6 +68,8 @@ function App() {
 
     startSession({
       agentId: AGENT_ID,
+      // WebRTC (SDK default) sessions were dropped by LiveKit while the same config worked over WebSocket.
+      connectionType: "websocket",
       dynamicVariables: {
         track: TRACKS[track].label,
         language: LANGUAGES[language].label,
