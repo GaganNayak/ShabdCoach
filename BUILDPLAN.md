@@ -57,7 +57,8 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.4 (C)** `onMessage` → transcript; `useConversationMode` + status → orb.
 - [x] **4.5 (C)** `clientTools.log_result` → results (upsert); `end_session` → summary, hang up when the agent goes back to listening (15 s fallback).
 - [x] **4.6 (C)** End button + disconnect → summary; disconnect before any message → back to setup with an error.
-- [ ] **4.7 (G+C)** 🔴 **Blocker:** sessions on prod connect, then are closed by the agent (`reason: agent`) before any message, in Hinglish and English. One earlier prod run worked (greeting + reply). Check the ElevenLabs dashboard (see BUILDLOG).
+- [ ] **4.7a (G)** Add agent minutes. Cause of dropped sessions = `quota_exceeded` (free plan: 15 min/mo). Recommended: Starter ($6, 75 min). Set max call duration to ~6 min.
+- [ ] **4.7 (G+C)** One full live session on the prod URL (you on Chrome; AI reads the result from you, no headless runs, to save minutes).
   Done when: a full live 5-word session works on the live URL and lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)
@@ -75,7 +76,7 @@ Architecture reference: `ARCHITECTURE.md`.
 ## Phase 7 — Submission (~1 h)
 - [ ] **7.1 (C)** `README.md`: problem, target user, learning loop + research, architecture diagram, metrics we'd track, what's next (Tulu/Konkani, SRS, pronunciation).
 - [ ] **7.2 (G)** Record a 60–90s demo video (Loom), one Hinglish or Kannada session.
-- [ ] **7.3 (G)** Final check of the live link in an incognito window; confirm the usage cap leaves room for reviewers.
+- [ ] **7.3 (G)** Final check of the live link in an incognito window; confirm **enough agent minutes remain for reviewers** (each session ≈ 5–6 min).
 - [ ] **7.4 (G)** Submit: live link + GitHub repo + demo video.
 
 ---

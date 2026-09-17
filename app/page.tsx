@@ -112,7 +112,7 @@ function App() {
       },
       onDisconnect: (details) => {
         console.info("[shabd-coach] disconnected", JSON.stringify(details));
-        if (!heard.current) setError((e) => e ?? "The coach couldn't start right now. Please try again in a moment.");
+        if (!heard.current) setError((e) => e ?? "The voice coach is unavailable right now (it may have reached its usage limit). Please try again later.");
         setPhase((p) => (p !== "session" ? p : heard.current ? "summary" : "setup"));
       },
     });

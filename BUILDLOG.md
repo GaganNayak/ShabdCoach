@@ -7,8 +7,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 
 ## ▶ Current state (keep this block updated)
 - **Phase:** 0–3 done (except 2.4) · **Phase 4 code done, blocked on live test (4.7)**
-- **🔴 Blocker:** on https://shabd-coach.vercel.app, sessions connect (token 200, LiveKit connected), then close with `{"reason":"agent","context":{"type":"close","reason":"agent disconnected"}}` before any message, in Hinglish and English. One earlier prod run (commit db94e76) worked: greeting + user reply arrived. Needs an ElevenLabs dashboard check (Conversations list for the failed calls' error, credits/usage, concurrency, whether the agent is published, overrides allowed).
-- **Next step:** the user checks the dashboard → AI fixes. Then 4.7 full live session, then Phase 5.
+- **🔴 Blocker (root cause found):** ElevenLabs dashboard: `[quota_exceeded] You've run out of credits.` The agent closes sessions (`reason: agent`) before any message when minutes are used up. **Not a code bug.** Free plan = 15 agent call minutes/month (elevenlabs.io/pricing/agents), used up by dashboard tests + ~8 headless test runs.
+- **Next step:** the user adds minutes (recommended: Starter, $6/mo, 75 min, 6 concurrent) → one live 5-word session (4.7) → Phase 5. **Save minutes:** no more headless voice runs unless needed; keep max duration short.
 - **Test on prod, not localhost:** localhost is dropped by the agent allowlist (by design). Headless test script (scratchpad, not in repo): puppeteer-core + Chrome `--use-fake-device-for-media-stream`.
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`; user git has `pull.rebase=true`, so commit before pulling)
 - **Live:** https://shabd-coach.vercel.app (auto-deploys on push; env `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`, type Config)
@@ -16,6 +16,15 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm test` · `npm run build` (then `npx tsc --noEmit`; tsc needs `.next/types` from a build/dev run) · `npm run lint`
 - **Gotcha:** the project lives on the iCloud-synced Desktop, which creates `* 2.*` duplicate files in `.next/` and breaks `tsc`. Fix: `rm -rf .next`.
+
+---
+
+## 2026-09-17 — Phase 4 blocker: quota exceeded
+- The user found the dashboard error for the dropped sessions: `[quota_exceeded] You've run out of credits. Add credits or upgrade your plan to start a new conversation.`
+- ElevenAgents pricing (elevenlabs.io/pricing/agents, checked 2026-09-17): billed by **call minutes**, not the shared credit pool. Free 15 min/mo (4 concurrent) · Starter $6 → 75 min (6) · Creator $22 → 275 min (10) · Pro $99 → 1,238 min (20). $0.08/min.
+- Budget: a full session is ~5–6 min, so Starter ≈ 12 sessions (testing + reviewers).
+- Code: the setup-screen message for "dropped before any message" now mentions a possible usage limit (the SDK only reports `reason: agent`, so we can't detect quota exactly).
+- Implication for submission (Phase 7): the demo video matters as a backup if minutes run out while reviewers try the link.
 
 ---
 
