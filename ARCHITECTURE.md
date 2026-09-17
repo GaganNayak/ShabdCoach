@@ -81,7 +81,7 @@ type WordResult = { word: string; recalled: boolean; used_correctly: boolean; ti
 type Phase = "setup" | "session" | "summary";
 type TranscriptLine = { role: "agent" | "user"; text: string; turn?: number };
 ```
-`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex(words, results, transcript, turnsDone)` (the card moves past a logged word, or to a "Word N of 5" / "two of five" cue, only once the coach turn in which it happened has finished), `cleanSpeech` (strips V3 `[slow]` tags), `pcmMs`, `createCueTracker(onCue)` (fires when the audio *plays* "Word N of 5").
+`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `wordStatus` (learned = recalled && used_correctly, partial = one, missed = none; score counts learned), `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex(words, results, transcript, turnsDone)` (the card moves past a logged word, or to a "Word N of 5" / "two of five" cue, only once the coach turn in which it happened has finished), `cleanSpeech` (strips V3 `[slow]` tags), `pcmMs`, `createCueTracker(onCue)` (fires when the audio *plays* "Word N of 5").
 
 ### 5.2 Language config
 | LanguageId | `overrides.agent.language` | `{{language}}` value | Meaning field used |

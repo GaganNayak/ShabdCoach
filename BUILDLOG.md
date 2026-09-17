@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; audio-synced card + prompt v6 → waiting for **4.21** (user pastes v6, publishes, re-checks) → Phase 5
-- **Next step (user):** 4.21, paste the prompt v6 system prompt → Publish → 2 words on prod: no "yes" step, and the card switches as the coach says "Word 2 of 5". Then Phase 5 (Kannada session, Android + iPhone).
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; audio-synced card ✅ (4.21) · prompt v7 + 3-state scoring → waiting for **4.23** → Phase 5
+- **Next step (user):** 4.23, in ElevenLabs paste the prompt v7 system prompt, the `log_result` tool description and the `words_learned` param description → Publish → 2 words: no ✓ before the sentence; meaning right + sentence wrong = ½. Then Phase 5 (Kannada session, Android + iPhone).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -16,7 +16,26 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, prompt v3, TTS V3 Conversational, allowlist `shabd-coach.vercel.app`, overrides: language + first message
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
-- **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+- **Gotcha:** `.next/` goes stale (iCloud `* 2.*` duplicates; deleted routes still referenced in `.next/dev/types`) and breaks `tsc` → `rm -rf .next` and rebuild
+
+---
+
+## 2026-09-17 — Phase 4.21 ✅ → 4.22 log timing + 3-state scoring
+- The user tested v6 + the audio-synced card: the "yes" step is gone ✅; the card switches right as "Word 2 of 5" is spoken ✅.
+- New bug: after a **correct meaning** (step 2), the ✓ appeared immediately, before the learner made a sentence (step 3). Cause: the agent called `log_result` after recall; the prompt didn't pin *when* to log.
+- **Prompt v7** (`agent-prompt.md`):
+  - RECALL: "Do NOT call any tool here".
+  - USE: wait for the sentence (or a skip).
+  - LOG: "Only now, after the sentence attempt… once… with both results… Never call it before step 3 is answered".
+  - Tools: "only after the learner has attempted the sentence".
+  - `log_result` tool description: "Call only after the learner has attempted their own sentence… (never right after the meaning)".
+  - `end_session.words_learned`: BOTH meaning AND sentence correct.
+- **✓ rule changed (user choice: 3 states).** Before: ✓ if recalled OR used.
+  - `lib/session.ts` `wordStatus`: learned (both) / partial (one) / missed (none).
+  - `SessionScreen`: dots ✓ green / "½" amber / ✗ red; the card uses exported `StatusBadge` (Learned ✓ / Almost there / Keep practising).
+  - `SummaryScreen`: score = learned only, "· N almost there" subline, per-word `StatusBadge` next to the Meaning/Used marks; the row wraps (`flex-wrap`) for long words.
+- Verified: tests 10/10 ✅ (+ wordStatus) · build ✅ tsc ✅ lint ✅. Summary layout checked at 375 px with a temporary preview route (deleted), using the longest words (inconvenience, professional, achievement): no overflow, clean wrap.
+- Process note: the code commit 6748899 went in before this doc update, because a stale `.next/dev/types` reference to the deleted preview route failed `tsc` in the chain. Clean `.next` → all checks pass.
 
 ---
 

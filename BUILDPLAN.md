@@ -73,7 +73,9 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.18 (C)** Turn end = 1.2 s of continuous silence (`TURN_END_MS`), so mid-reply audio gaps no longer count; auto hang-up uses the same debounce.
 - [x] **4.19 (G)** Re-check: the card stays during feedback ✅; the extra "yes" step is **irritating** every word ❌.
 - [x] **4.20 (C)** Audio-synced card: `createCueTracker` switches the card when the coach's audio *plays* "Word N of 5" (alignment + PCM playback clock). Prompt v6 removes the pause.
-- [ ] **4.21 (G)** Paste prompt v6 → Publish → 2 words: no "yes" step; the card switches right as the coach says "Word 2 of 5".
+- [x] **4.21 (G)** Prompt v6 live: "yes" step gone ✅, card switches exactly at "Word 2 of 5" ✅. New bug: ✓ appeared right after a correct *meaning*, before the sentence step.
+- [x] **4.22 (C)** Prompt v7: log_result only after the sentence attempt (+ tool description). ✓ rule (user choice): **3 states** ✓ learned (both) / ½ almost there (one) / ✗ missed (neither); score counts only ✓.
+- [ ] **4.23 (G)** Paste prompt v7 + the new `log_result` tool description + `words_learned` description → Publish → 2 words: no ✓ before your sentence; right meaning + wrong sentence = ½.
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)
