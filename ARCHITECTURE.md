@@ -6,7 +6,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 | Area | Choice | Why |
 |---|---|---|
 | Voice agent | **ElevenLabs Agents** (STT + LLM + TTS in one), TTS model **V3 Conversational** | Low latency, Hindi + Kannada voices, no backend. Apna uses ElevenLabs too. |
-| Client ↔ agent | **`@elevenlabs/react` 1.15** (`ConversationProvider` in `app/page.tsx`; `useConversationControls`, `useConversationStatus`, `useConversationMode`; client tools passed in `startSession`) | We need a custom UI: live transcript, scoreboard, summary, and a language switch for each session |
+| Client ↔ agent | **`@elevenlabs/react` 1.15**, `connectionType: "webrtc"` (LiveKit jitter buffer; raw WebSocket PCM underran — see BUILDLOG 5.1) (`ConversationProvider` in `app/page.tsx`; `useConversationControls`, `useConversationStatus`, `useConversationMode`; client tools passed in `startSession`) | We need a custom UI: live transcript, scoreboard, summary, and a language switch for each session |
 | Frontend | **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4**, on the Node.js runtime | The user's choice. Deploys natively to Vercel. |
 | UI components | **shadcn/ui** (style `radix-nova`, base color neutral, Radix primitives, lucide icons) | The user's choice. Components are copied into `components/ui/` and fully editable. |
 | Backend | **None in v1.** Next.js route handlers are the upgrade path. | The agent is public, so no secret needs protecting |
@@ -29,7 +29,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 │         │                        │    │                                                  │
 │         └─► useConversation().startSession({ agentId, dynamicVariables, overrides })     │
 └───────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                            │ WebSocket (mic audio ⇄ agent audio)
+                                            │ WebRTC (mic audio ⇄ agent audio)
                                             ▼
 ┌──────────────────────────── ElevenLabs Agent "Shabd Coach" ──────────────────────────────┐
 │  System prompt (agent-prompt.md) with {{track}} {{language}} {{word_list}}                 │
@@ -42,7 +42,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 1. The user picks a **track** and a **language** → taps **Start**.
 2. The page requests mic permission (`getUserMedia`). If denied → show a friendly message and stop.
 3. `pickWords(track, 5)` chooses 5 random words. `buildWordList(words, language)` turns them into a text block.
-4. `startSession({ agentId, dynamicVariables: { track, language, word_list }, overrides: { agent: { language } }, clientTools, callbacks })` is called from the Start tap in `app/page.tsx`. `firstMessage` override = `LANGUAGES[lang].greeting` (`GREETING_OVERRIDE = true`). **`connectionType: "websocket"`**: WebRTC sessions were dropped by LiveKit, while WebSocket works.
+4. `startSession({ agentId, dynamicVariables: { track, language, word_list }, overrides: { agent: { language } }, clientTools, callbacks })` is called from the Start tap in `app/page.tsx`. `firstMessage` override = `LANGUAGES[lang].greeting` (`GREETING_OVERRIDE = true`). **`connectionType: "webrtc"`** (the earlier WebSocket switch was a workaround for what turned out to be an account-side outage).
 5. The agent teaches the loop. After each word it calls **`log_result`** → the page appends to `results[]` → the scoreboard updates.
 6. After the review quiz the agent calls **`end_session`** → the page stores the summary → hangs up when the agent returns to listening (after its goodbye; 15 s fallback) → SummaryScreen.
 7. If the connection drops, or the user taps **End** before `end_session` → SummaryScreen with partial `results[]`. If it drops **before any message** → back to Setup with an error.
@@ -111,7 +111,7 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 | Word list missing/empty | Agent says the lesson did not load and stops (prompt v3); page should never start without 5 words |
 | Off-topic question | Agent refuses and returns to the current word (prompt v3 "Scope") |
 | Agent logs the same word twice | Replace the earlier entry for that word |
-| Card timing (primary) | `onAudioAlignment` + `onAudio` feed `createCueTracker`: per-chunk char timings + PCM length build a playback clock (re-anchored when playback drains; cleared on `onInterruption`). Card index = max(spokenIndex, fallbacks). |
+| Card timing (primary) | `onAudioAlignment` + `onAudio` feed `createCueTracker`: per-chunk char timings build a playback clock (chunk length from PCM on WebSocket, from the alignment itself on WebRTC) (re-anchored when playback drains; cleared on `onInterruption`). Card index = max(spokenIndex, fallbacks). |
 | `log_result` arrives before the feedback is spoken | Dot updates at once; the card stays and shows Learned ✓ / Keep practising + tip; it moves on when that coach turn ends (page counts a turn as finished after `TURN_END_MS` = 1.2 s of continuous listening, in `turnsDone`) |
 | Agent skips `log_result` for a word | Card still advances on "Word N of 5"; the dot shows "–"; the summary shows "Not reached" for it. Prompt v4 makes the call mandatory. |
 | Unsupported / in-app browser (no WebRTC) | Advise opening in Chrome/Safari |

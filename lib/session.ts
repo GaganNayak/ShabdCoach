@@ -87,9 +87,12 @@ type Alignment = { chars: string[]; char_start_times_ms: number[]; char_duration
 // ponytail: format hard-coded; read it from conversation metadata if the agent's output format changes.
 export const pcmMs = (base64: string) => (base64.length * 3) / 4 / 32;
 
+const alignMs = (a: Alignment) => (a.chars.length ? a.char_start_times_ms.at(-1)! + a.char_durations_ms.at(-1)! : 0);
+
 // Calls onCue(n) when the coach's audio *plays* "Word n of 5". Audio chunks (with per-chunk character
 // timings) arrive much faster than they play, so keep a playback clock: `anchor` = when audio offset 0 would
 // have started playing. Re-anchor whenever playback drained (mode → listening) and audio resumes.
+// Chunk length comes from the PCM when the page receives it (WebSocket), else from the alignment (WebRTC).
 export function createCueTracker(onCue: (n: number) => void, now = () => performance.now()) {
   let text = "";
   let times: number[] = [];
@@ -100,29 +103,41 @@ export function createCueTracker(onCue: (n: number) => void, now = () => perform
   const scheduled = new Map<number, ReturnType<typeof setTimeout>>();
   const fired = new Set<number>();
 
+  const commit = (a: Alignment | null, ms: number) => {
+    if (drained) {
+      anchor = now() - audioMs;
+      drained = false;
+    }
+    if (a) {
+      a.chars.forEach((c, i) => {
+        text += c;
+        times.push(audioMs + a.char_start_times_ms[i]);
+      });
+      for (const m of text.matchAll(CUE)) {
+        const n = cueNumber(m);
+        if (fired.has(n) || scheduled.has(n)) continue;
+        const delay = Math.max(0, anchor + times[m.index!] - now());
+        scheduled.set(n, setTimeout(() => (scheduled.delete(n), fired.add(n), onCue(n)), delay));
+      }
+    }
+    audioMs += ms;
+  };
+
   return {
+    // The SDK calls onAudioAlignment right before onAudio for the same chunk — but only WebSocket sessions
+    // deliver the audio to the page, so fall back to the alignment's own length on the next tick.
     alignment(a: Alignment) {
-      pending = a; // the SDK calls onAudioAlignment right before onAudio for the same chunk
+      pending = a;
+      setTimeout(() => {
+        if (pending !== a) return;
+        pending = null;
+        commit(a, alignMs(a));
+      }, 0);
     },
     audio(base64: string) {
-      if (drained) {
-        anchor = now() - audioMs;
-        drained = false;
-      }
-      if (pending) {
-        pending.chars.forEach((c, i) => {
-          text += c;
-          times.push(audioMs + pending!.char_start_times_ms[i]);
-        });
-        pending = null;
-        for (const m of text.matchAll(CUE)) {
-          const n = cueNumber(m);
-          if (fired.has(n) || scheduled.has(n)) continue;
-          const delay = Math.max(0, anchor + times[m.index!] - now());
-          scheduled.set(n, setTimeout(() => (scheduled.delete(n), fired.add(n), onCue(n)), delay));
-        }
-      }
-      audioMs += pcmMs(base64);
+      const a = pending;
+      pending = null;
+      commit(a, pcmMs(base64));
     },
     drained() {
       drained = true;

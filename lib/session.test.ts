@@ -105,11 +105,24 @@ test("cue tracker fires when the audio *plays* 'Word 2 of 5', across chunks and 
   tick(20);
   assert.deepEqual(cues, [2, 3]);
 
+  // WebRTC: only alignment arrives (LiveKit plays the audio), so chunk length comes from the alignment itself.
+  t.interrupt();
+  t.drained();
+  tick(1000);
+  t.alignment(chunk("Nice. ", 100)); // 600 ms
+  tick(0);
+  t.alignment(chunk("Word 5 of 5", 100)); // "5" at char 5 → 600 + 500 = 1100 ms after this run started
+  tick(0);
+  tick(500); // "Nice. " is 600 ms, so "Word 5" can't have played yet
+  assert.deepEqual(cues, [2, 3], "not played yet");
+  tick(1500);
+  assert.deepEqual(cues, [2, 3, 5], "cue fires from alignment length alone");
+
   // Interruption before "Word 4" plays → dropped.
   t.alignment(chunk("Word 4 of 5", 100));
   t.audio(audio(1000));
   t.interrupt();
   tick(5000);
-  assert.deepEqual(cues, [2, 3]);
+  assert.deepEqual(cues, [2, 3, 5], "word 4 cue was dropped by the interruption");
   mock.timers.reset();
 });

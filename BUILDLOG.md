@@ -7,8 +7,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 
 ## ▶ Current state (keep this block updated)
 - **Phase:** 0–4 done (except 2.4 Kannada review) · **Phase 5 in progress** (iPhone Safari ✅)
-- **Next step (user):** Phase 5: 5.1 Kannada session · 5.2 Android Chrome · 5.4 edge cases (deny mic, End early, airplane mode, WhatsApp in-app browser).
-- **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
+- **Next step (user):** 5.1b re-test on prod after the WebRTC switch: Kannada (smooth?) + Hinglish (card sync at "Word 2 of 5"?). Then 5.2 Android, 5.4 airplane mode + WhatsApp browser.
+- **Connection:** `connectionType: "webrtc"` (jitter buffer; WebSocket PCM underran — 5.1a). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`; user git has `pull.rebase=true`, so commit before pulling)
@@ -17,6 +17,21 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** `.next/` goes stale (iCloud `* 2.*` duplicates; deleted routes still referenced in `.next/dev/types`) and breaks `tsc` → `rm -rf .next` and rebuild
+
+---
+
+## 2026-09-17 — Phase 5.1: Kannada choppy → WebRTC (5.1a)
+**Symptom:** Kannada session: card meanings, card sync and scoring all fine, but the voice was choppy and then went silent. Hinglish on the same phone/network was smooth; Kannada in the ElevenLabs dashboard was smooth.
+**Diagnosis (raw WebSocket probes):**
+- A long **pure Kannada** greeting was spoken in full (11.6 s, all 128 chars) → the voice model is not broken.
+- Timing probe (`rate.mjs`): audio arrives barely ahead of playback — pure Kannada **+30 ms**, Hindi **+34 ms**, Kannada mixed with English **−9 ms (underrun)**.
+- ⇒ On the WebSocket transport the SDK plays raw PCM as it arrives with **no jitter buffer**, so a slightly slower-generating language (or any network wobble) stalls playback. Hinglish only survived by ~30 ms of margin.
+- Several probe rounds returned **zero audio in every language** for a few minutes, then recovered — the same account-side flakiness seen in 4.7b. That, not WebRTC, is what made WebRTC look broken then.
+**Fix:**
+- `connectionType: "webrtc"` again (LiveKit has a jitter buffer).
+- WebRTC delivers audio via LiveKit tracks, so `onAudio` (raw PCM) doesn't fire. `createCueTracker` now commits a chunk on the next tick using the **alignment's own length** when no PCM arrives, and still uses `pcmMs` when it does. Test added for the alignment-only path (10/10 ✅).
+**Also from this session:** 5.4 deny-mic ✅ and End-early ✅; Kannada card meanings, card sync, ½/✓ and summary ✅.
+**Watch:** if sessions get dropped again after the WebRTC switch, check the ElevenLabs status/usage before assuming a code bug.
 
 ---
 

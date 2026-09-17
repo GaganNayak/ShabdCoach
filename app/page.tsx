@@ -85,8 +85,8 @@ function App() {
 
     startSession({
       agentId: AGENT_ID,
-      // WebRTC (SDK default) sessions were dropped by LiveKit while the same config worked over WebSocket.
-      connectionType: "websocket",
+      // WebRTC has a jitter buffer; raw WebSocket PCM underran on slower-generating languages (Kannada).
+      connectionType: "webrtc",
       dynamicVariables: {
         track: TRACKS[track].label,
         language: LANGUAGES[language].label,

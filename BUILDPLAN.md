@@ -79,12 +79,14 @@ Architecture reference: `ARCHITECTURE.md`.
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h) 🟡 IN PROGRESS
-- [ ] **5.1 (G)** Live **Kannada (Beta)** session end to end (Hinglish ✅ done during Phase 4). Check the Kanglish greeting, meanings on the card, "Word N of 5" card sync, and summary.
-- [~] **5.2 (G)** Deployed-URL device tests:
+- [x] **5.1 (G)** Kannada (Beta) session: card meanings ✅, card sync ✅, ½/✓ + summary ✅, **but the voice was choppy and then went silent**.
+- [x] **5.1a (C)** Diagnosed: the audio stream ran only ~30 ms ahead of playback in every language (Kannada mixed: −9 ms → underrun). Fix: back to **WebRTC** (jitter buffer); the cue tracker now also works without raw PCM.
+- [ ] **5.1b (G)** Re-test on prod: **Kannada** (smooth?) and **Hinglish** (still fine? card still switches at "Word 2 of 5"?).
+- [~] **5.2 (G)** Deployed-URL device tests (redo the passing ones only if 5.1b changes behaviour):
   - [x] **iPhone Safari** ✅: mic prompt, audio heard, replies transcribed, ½/✓ scoring, card sync at "Word 2 of 5", layout OK, screen stays on, End → summary.
   - [ ] **Android Chrome**: same checklist.
 - [ ] **5.3 (C)** Fix the bugs found; re-deploy.
-- [ ] **5.4 (G+C)** Edge cases from ARCHITECTURE §6 on the live URL: deny mic → error + retry; End early → partial summary; airplane mode mid-session → summary with partial results; open inside the WhatsApp in-app browser.
+- [~] **5.4 (G+C)** Edge cases from ARCHITECTURE §6 on the live URL: deny mic ✅, End early ✅ (partial summary with "Not reached"); remaining: airplane mode mid-session, WhatsApp in-app browser.
   Done when: every §6 row behaves as specified on the live URL.
 
 ## Phase 6 — Polish (optional, ~1 h)
