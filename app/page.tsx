@@ -92,8 +92,8 @@ function App() {
 
     startSession({
       agentId: AGENT_ID,
-      // WebRTC has the jitter buffer that WebSocket PCM lacks (BUILDLOG 5.1a).
-      connectionType: flag("conn") === "websocket" ? "websocket" : "webrtc",
+      // WebRTC (with its jitter buffer) is dropped by this agent — intermittently at first, then every time (BUILDLOG 5.1c).
+      connectionType: flag("conn") === "webrtc" ? "webrtc" : "websocket",
       dynamicVariables: {
         track: TRACKS[track].label,
         language: LANGUAGES[language].label,
