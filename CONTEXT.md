@@ -150,3 +150,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Turn end debounced (1.2 s silence) so mid-reply audio gaps don't move the card or hang up early.
 - 2026-09-17: The pause step irritated the learner → removed (prompt v6). The word card now syncs to the coach's audio playback of "Word N of 5" via ElevenLabs audio alignment.
 - 2026-09-17: Card audio sync confirmed working. Prompt v7: log only after the sentence step. Scoring is now 3-state (✓ both right / ½ one right / ✗ neither), score counts ✓ only (user decision).
+- 2026-09-17: Phase 4 done. iPhone Safari fully passes (audio, mic, scoring, card sync, layout, summary). Next: Kannada session, Android Chrome, edge cases.

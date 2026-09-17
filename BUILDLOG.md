@@ -6,17 +6,29 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; audio-synced card ✅ (4.21) · prompt v7 + 3-state scoring → waiting for **4.23** → Phase 5
-- **Next step (user):** 4.23, in ElevenLabs paste the prompt v7 system prompt, the `log_result` tool description and the `words_learned` param description → Publish → 2 words: no ✓ before the sentence; meaning right + sentence wrong = ½. Then Phase 5 (Kannada session, Android + iPhone).
+- **Phase:** 0–4 done (except 2.4 Kannada review) · **Phase 5 in progress** (iPhone Safari ✅)
+- **Next step (user):** Phase 5: 5.1 Kannada session · 5.2 Android Chrome · 5.4 edge cases (deny mic, End early, airplane mode, WhatsApp in-app browser).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`; user git has `pull.rebase=true`, so commit before pulling)
 - **Live:** https://shabd-coach.vercel.app (auto-deploys on push; env `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`, type Config)
-- **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, prompt v3, TTS V3 Conversational, allowlist `shabd-coach.vercel.app`, overrides: language + first message
+- **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, **prompt v7** (+ updated `log_result` / `words_learned` descriptions), TTS V3 Conversational, allowlist `shabd-coach.vercel.app`, overrides: language + first message
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** `.next/` goes stale (iCloud `* 2.*` duplicates; deleted routes still referenced in `.next/dev/types`) and breaks `tsc` → `rm -rf .next` and rebuild
+
+---
+
+## 2026-09-17 — Phase 4 ✅ + 5.2 iPhone Safari ✅
+- The user published prompt v7 + the new `log_result` tool description + `words_learned` description, and tested on **iPhone Safari** (deployed URL):
+  - Safari mic prompt on Start ✅
+  - Greeting audio heard ✅ (the iOS audio-gesture risk did not materialise, even with `getUserMedia` awaited before `startSession`)
+  - Replies transcribed ✅
+  - Right meaning + wrong sentence → no dot until after the sentence, then ½ / Almost there ✅; both right → ✓ / Learned ✅
+  - Card switches exactly at "Word 2 of 5" ✅
+  - Layout OK ✅, screen stays on ✅ (cause not verified; SDK has a `useWakeLock` option we don't set), End → summary ✅
+- **Phase 4 closed.** Remaining Phase 5: Kannada session (5.1), Android Chrome (5.2), edge cases (5.4).
 
 ---
 

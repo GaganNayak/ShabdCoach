@@ -49,7 +49,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **3.5 (C)** Mobile-first styling; check at 375px width.
   Done when: all 3 screens are clickable end to end with fake data, on desktop and mobile widths.
 
-## Phase 4 — Voice wiring (~1.5 h, needs 1.7) 🟡 code done, awaiting 4.7 live run by the user
+## Phase 4 — Voice wiring (~1.5 h, needs 1.7) ✅ DONE
 - [x] ~~**4.0 (G)** Clear the allowlist for local testing~~ → **not needed**: test on https://shabd-coach.vercel.app (already allowlisted). Localhost is dropped by the allowlist (confirmed).
 - [x] **4.1 (C)** Install `@elevenlabs/react` (1.15.2). API differs from the docs we planned against: `ConversationProvider` + `useConversationControls` / `useConversationStatus` / `useConversationMode`.
 - [x] **4.2 (C)** Mic permission requested inside the Start tap; denied / no-mediaDevices → error on the setup screen.
@@ -75,14 +75,16 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.20 (C)** Audio-synced card: `createCueTracker` switches the card when the coach's audio *plays* "Word N of 5" (alignment + PCM playback clock). Prompt v6 removes the pause.
 - [x] **4.21 (G)** Prompt v6 live: "yes" step gone ✅, card switches exactly at "Word 2 of 5" ✅. New bug: ✓ appeared right after a correct *meaning*, before the sentence step.
 - [x] **4.22 (C)** Prompt v7: log_result only after the sentence attempt (+ tool description). ✓ rule (user choice): **3 states** ✓ learned (both) / ½ almost there (one) / ✗ missed (neither); score counts only ✓.
-- [ ] **4.23 (G)** Paste prompt v7 + the new `log_result` tool description + `words_learned` description → Publish → 2 words: no ✓ before your sentence; right meaning + wrong sentence = ½.
+- [x] **4.23 (G)** Prompt v7 + tool descriptions published. Tested on **iPhone Safari**: no ✓ before the sentence ✅, ½ for right meaning + wrong sentence ✅, ✓ for both ✅.
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
-## Phase 5 — Test & harden (~1 h)
-- [ ] **5.1 (G+C)** Live test: Hinglish and Kannada sessions end to end.
-- [ ] **5.2 (G)** Deployed-URL test on Android Chrome + iPhone Safari (mic prompt, audio playback, layout).
+## Phase 5 — Test & harden (~1 h) 🟡 IN PROGRESS
+- [ ] **5.1 (G)** Live **Kannada (Beta)** session end to end (Hinglish ✅ done during Phase 4). Check the Kanglish greeting, meanings on the card, "Word N of 5" card sync, and summary.
+- [~] **5.2 (G)** Deployed-URL device tests:
+  - [x] **iPhone Safari** ✅: mic prompt, audio heard, replies transcribed, ½/✓ scoring, card sync at "Word 2 of 5", layout OK, screen stays on, End → summary.
+  - [ ] **Android Chrome**: same checklist.
 - [ ] **5.3 (C)** Fix the bugs found; re-deploy.
-- [ ] **5.4 (C)** Edge cases from ARCHITECTURE §6: deny mic, End early, airplane mode mid-session, open inside the WhatsApp in-app browser.
+- [ ] **5.4 (G+C)** Edge cases from ARCHITECTURE §6 on the live URL: deny mic → error + retry; End early → partial summary; airplane mode mid-session → summary with partial results; open inside the WhatsApp in-app browser.
   Done when: every §6 row behaves as specified on the live URL.
 
 ## Phase 6 — Polish (optional, ~1 h)
