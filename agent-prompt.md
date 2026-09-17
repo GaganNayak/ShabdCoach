@@ -9,18 +9,48 @@ Paste each section into the ElevenLabs Agents dashboard.
 | `language` | `English` / `Hinglish` / `Kannada` |
 | `word_list` | `1. resolve — to solve a problem — (Hinglish: problem ko suljhana) — e.g. "We will resolve your issue within 24 hours."` (5 lines) |
 
-## Test values (dashboard "Test AI agent" asks for these)
-- track: `Customer support`
-- language: `Hinglish` (then repeat with `English`, `Kannada`)
-- word_list:
+## Test values (task 1.5, dashboard "Test AI agent")
+Generated from `lib/session.ts` `buildWordList` (track: support), so it matches what the page sends. `track` = `Customer support` for all runs.
+
+**language = `Hinglish`** · word_list:
 ```
 1. resolve — to solve a problem (Hinglish: problem ko suljhana) — e.g. "We will resolve your issue within 24 hours."
 2. refund — money given back to a customer (Hinglish: paise wapas karna) — e.g. "Your refund will reach your account in five days."
-3. polite — speaking in a kind and respectful way (Hinglish: vinamra, izzat se baat karne wala) — e.g. "Always stay polite, even with angry customers."
-4. escalate — to pass a problem to a senior person (Hinglish: problem ko senior tak le jaana) — e.g. "I will escalate this to my team leader."
+3. escalate — to pass a problem to a senior person (Hinglish: problem ko senior tak le jaana) — e.g. "I will escalate this to my team leader."
+4. polite — speaking in a kind and respectful way (Hinglish: vinamra, izzat se baat karne wala) — e.g. "Always stay polite, even with angry customers."
 5. verify — to check that something is correct (Hinglish: jaanch karna ki sahi hai ya nahi) — e.g. "Can I verify your registered phone number?"
 ```
-Kannada test word_list: swap the brackets for `(Kannada: ಸಮಸ್ಯೆಯನ್ನು ಬಗೆಹರಿಸು)` etc. from `lib/words.ts`.
+
+**language = `English`** · word_list:
+```
+1. resolve — to solve a problem — e.g. "We will resolve your issue within 24 hours."
+2. refund — money given back to a customer — e.g. "Your refund will reach your account in five days."
+3. escalate — to pass a problem to a senior person — e.g. "I will escalate this to my team leader."
+4. polite — speaking in a kind and respectful way — e.g. "Always stay polite, even with angry customers."
+5. verify — to check that something is correct — e.g. "Can I verify your registered phone number?"
+```
+
+**language = `Kannada`** · word_list:
+```
+1. resolve — to solve a problem (Kannada: ಸಮಸ್ಯೆಯನ್ನು ಬಗೆಹರಿಸು) — e.g. "We will resolve your issue within 24 hours."
+2. refund — money given back to a customer (Kannada: ಹಣ ವಾಪಸ್ ನೀಡುವುದು) — e.g. "Your refund will reach your account in five days."
+3. escalate — to pass a problem to a senior person (Kannada: ಸಮಸ್ಯೆಯನ್ನು ಮೇಲಧಿಕಾರಿಗೆ ಕಳುಹಿಸು) — e.g. "I will escalate this to my team leader."
+4. polite — speaking in a kind and respectful way (Kannada: ಸಭ್ಯ, ವಿನಯದಿಂದ ಮಾತನಾಡುವ) — e.g. "Always stay polite, even with angry customers."
+5. verify — to check that something is correct (Kannada: ಸರಿಯಾಗಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸು) — e.g. "Can I verify your registered phone number?"
+```
+
+### Scorecard (copy into chat after testing)
+```
+Run: Hinglish / English / Kannada
+1. Short turns (≤3 sentences)?           Y/N
+2. Order teach→recall→use→feedback?      Y/N
+3. Stayed on listed words?               Y/N
+4. log_result fired after each word?     Y/N  (end_session at end? Y/N/not reached)
+5. Tool params looked right?             paste one if possible
+6. Latency OK?                           good / slow
+7. Language quality (Hinglish/Kannada natural? English target words clear?)
+8. Anything weird:
+```
 
 ## First message
 ```
