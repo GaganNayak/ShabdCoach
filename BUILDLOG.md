@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card-timing fix v2 deployed → waiting for **4.13** re-check → Phase 5
-- **Next step (user):** 4.13, 2 words on prod: while the coach gives feedback, the card should stay on the word and show ✓/✗ + tip; it switches when the coach starts the next word. Then Phase 5 (Kannada session, Android + iPhone).
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card-timing fix v3 deployed → waiting for **4.15** re-check → Phase 5
+- **Next step (user):** 4.15, 2 words on prod: during the feedback the card stays and shows ✓/✗ + tip; it switches to the next word when the coach stops talking (orb → "Listening"). Then Phase 5 (Kannada session, Android + iPhone).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,21 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.13 re-check → 4.14 card timing v3
+- User screenshot: orb "Listening — your turn", dot 1 ✗, the card **still on word 1** ("complaint", Keep practising + tip), while the transcript already had the coach teaching word 2: `…Word two of five है, [slow] patience. [/slow] Patience का मतलब…`.
+- Causes:
+  1. The cue regex only matched digits; the coach said "two of five".
+  2. The "learner spoke after the log" fallback hadn't fired yet (the learner's turn had just started).
+  3. V3 expressive voice tags (`[slow]`) are included in the agent transcript text.
+- Fix:
+  - `app/page.tsx` counts **finished coach turns** (`onModeChange` speaking → listening) in `turns` ref + `turnsDone` state. Each log and transcript line stores `turn` at arrival.
+  - `currentIndex(..., turnsDone)`: a logged word or an agent "N of 5" cue moves the card only when its `turn < turnsDone`, i.e. after the coach finished the turn in which it arrived. The regex accepts `1-5|one…five`, `of|/`, `5|five`. The Hindi "में से" variant was dropped (wrong word order for "पाँच में से दो").
+  - `cleanSpeech` strips `[tag]` / `[/tag]` from transcript lines.
+  - Tests 8/8 ✅ (turn gating, number words, "15 of 20", user lines ignored, all-done, tag stripping) · build ✅ tsc ✅ lint ✅.
+- This replaces 4.10 (mode gating) and 4.12 (user-spoke fallback); both were based on wrong timing assumptions.
 
 ---
 

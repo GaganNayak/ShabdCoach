@@ -65,7 +65,9 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.10 (C)** Fix: the word card only advances when the coach isn't speaking (dots still update at once).
 - [x] **4.11 (G)** Re-check → ❌ still switched during feedback (both correct and wrong answers). The log arrives *before* speech starts, so gating on mode didn't help.
 - [x] **4.12 (C)** Fix v2: the card moves only on the coach's "Word N of 5" or when the learner speaks after the log; meanwhile the card shows the result badge + tip.
-- [ ] **4.13 (G)** Re-check the card timing (2 words).
+- [x] **4.13 (G)** Re-check → ❌ card never switched: the coach said "Word **two** of **five**" (words, not digits), and the learner hadn't spoken yet. Transcript also showed `[slow]…[/slow]` voice tags.
+- [x] **4.14 (C)** Fix v3: the card advances when the coach **turn after the log/cue finishes** (speaking → listening); cue regex accepts one…five; voice tags stripped from the transcript.
+- [ ] **4.15 (G)** Re-check the card timing (2 words).
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)

@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { TRACKS } from "./words.ts";
-import { LANGUAGES, buildWordList, currentIndex, findResult, pickWords, upsertResult } from "./session.ts";
+import { LANGUAGES, buildWordList, cleanSpeech, currentIndex, findResult, pickWords, upsertResult } from "./session.ts";
 
 test("word bank: 10 complete words per track", () => {
   for (const [id, t] of Object.entries(TRACKS)) {
@@ -42,16 +42,21 @@ test("findResult ignores case and punctuation", () => {
   assert.ok(findResult([{ word: "Follow-up.", recalled: false, used_correctly: false, tip: "" }], w));
 });
 
-test("currentIndex advances on logs and on 'Word N of 5' even without a log", () => {
+test("currentIndex moves only after the coach turn that followed the log/cue", () => {
   const ws = TRACKS.office.words.slice(0, 5);
-  const r = (word: string) => ({ word, recalled: false, used_correctly: false, tip: "" });
-  const user = { role: "user" as const, text: "ok" };
-  assert.equal(currentIndex(ws, [], []), 0);
-  assert.equal(currentIndex(ws, [r(ws[0].word), r(ws[1].word)], []), 0, "a log alone doesn't move the card");
-  assert.equal(currentIndex(ws, [{ ...r(ws[0].word), at: 0 }], [user]), 1, "learner spoke after the log");
-  assert.equal(currentIndex(ws, [{ ...r(ws[0].word), at: 1 }], [user]), 0, "that user line was before the log");
-  assert.equal(currentIndex(ws, [r(ws[0].word)], [{ role: "agent", text: "Word 4 of 5: agenda." }]), 3);
-  assert.equal(currentIndex(ws, [], [{ role: "agent", text: "शब्द 3 में से 5" }, { role: "user", text: "5 of 5" }]), 2);
-  assert.equal(currentIndex(ws, ws.map((w) => ({ ...r(w.word), at: 0 })), [user]), 5);
-  assert.equal(currentIndex(ws, [], [{ role: "agent", text: "We handled 15 of 20 calls." }]), 0);
+  const r = (word: string, turn: number) => ({ word, recalled: false, used_correctly: false, tip: "", turn });
+  const agent = (text: string, turn: number) => ({ role: "agent" as const, text, turn });
+  assert.equal(currentIndex(ws, [], [], 0), 0);
+  assert.equal(currentIndex(ws, [r(ws[0].word, 3)], [], 3), 0, "logged, feedback not spoken yet");
+  assert.equal(currentIndex(ws, [r(ws[0].word, 3)], [], 4), 1, "feedback turn finished");
+  assert.equal(currentIndex(ws, [], [agent("Word two of five hai, [slow] patience", 2)], 2), 0, "cue still being spoken");
+  assert.equal(currentIndex(ws, [], [agent("Word two of five hai, [slow] patience", 2)], 3), 1, "number words");
+  assert.equal(currentIndex(ws, [], [agent("Word 4 of 5: agenda.", 1)], 2), 3);
+  assert.equal(currentIndex(ws, [], [agent("We handled 15 of 20 calls.", 0)], 1), 0);
+  assert.equal(currentIndex(ws, [], [{ role: "user", text: "5 of 5", turn: 0 }], 1), 0);
+  assert.equal(currentIndex(ws, ws.map((w) => r(w.word, 0)), [], 1), 5);
+});
+
+test("cleanSpeech strips voice delivery tags", () => {
+  assert.equal(cleanSpeech("Word two of five, [slow] patience. [/slow] Patience ka matlab"), "Word two of five, patience. Patience ka matlab");
 });

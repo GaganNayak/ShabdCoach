@@ -2,10 +2,10 @@ import { TRACKS, type TrackId, type Word } from "./words.ts";
 
 export type { TrackId, Word };
 export type LanguageId = "english" | "hinglish" | "kannada";
-// at = transcript length when logged (the agent logs before it speaks the feedback)
-export type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string; at?: number };
+// turn = number of finished coach speaking turns when this happened (see currentIndex)
+export type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string; turn?: number };
 export type Phase = "setup" | "session" | "summary";
-export type TranscriptLine = { role: "agent" | "user"; text: string };
+export type TranscriptLine = { role: "agent" | "user"; text: string; turn?: number };
 
 // agentCode → overrides.agent.language; label → {{language}}; field → which meaning goes in {{word_list}}
 // greeting → overrides.agent.firstMessage ({track} replaced). Without it, the agent's auto-translated Hindi greeting is formal, not Hinglish.
@@ -55,17 +55,23 @@ export function upsertResult(results: WordResult[], r: WordResult): WordResult[]
   return [...results.filter((x) => norm(x.word) !== norm(r.word)), r];
 }
 
-// Index of the word being taught (words.length = all done). Moves on when the coach says "Word N of 5",
-// or when the learner speaks after a word was logged. Not on the log itself: it arrives before the feedback is spoken.
-export function currentIndex(words: Word[], results: WordResult[], transcript: TranscriptLine[]): number {
+const NUM: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5 };
+
+// Index of the word being taught (words.length = all done). The agent logs a word *before* speaking its
+// feedback, so a log or a "Word 2 of 5" cue only moves the card once that coach turn has finished.
+export function currentIndex(words: Word[], results: WordResult[], transcript: TranscriptLine[], turnsDone: number): number {
+  const finished = (turn = -1) => turn < turnsDone;
   let i = 0;
   words.forEach((w, idx) => {
     const r = findResult(results, w);
-    if (r && transcript.slice(r.at ?? transcript.length).some((l) => l.role === "user")) i = Math.max(i, idx + 1);
+    if (r && finished(r.turn)) i = Math.max(i, idx + 1);
   });
   for (const line of transcript) {
-    const m = line.role === "agent" && line.text.match(/\b(\d)\s*(?:of|\/|में से)\s*\d\b/i);
-    if (m) i = Math.max(i, Number(m[1]) - 1);
+    const m = line.role === "agent" && finished(line.turn) && line.text.match(/\b([1-5]|one|two|three|four|five)\s*(?:of|\/)\s*(?:5|five)\b/i);
+    if (m) i = Math.max(i, (NUM[m[1].toLowerCase()] ?? Number(m[1])) - 1);
   }
   return Math.min(i, words.length);
 }
+
+// V3 voices take delivery tags like [slow]…[/slow]; keep them out of the on-screen transcript.
+export const cleanSpeech = (s: string) => s.replace(/\[\/?[a-z][a-z ]*\]/gi, "").replace(/\s{2,}/g, " ").trim();

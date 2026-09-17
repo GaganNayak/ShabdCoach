@@ -77,11 +77,11 @@ voice-agent/
 type TrackId = "interview" | "support" | "sales" | "office";
 type LanguageId = "english" | "hinglish" | "kannada";
 type Word = { word: string; en: string; hi: string; kn: string; example: string };
-type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string; at?: number }; // at = transcript length when logged
+type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string; turn?: number }; // turn = finished coach turns at log time
 type Phase = "setup" | "session" | "summary";
-type TranscriptLine = { role: "agent" | "user"; text: string };
+type TranscriptLine = { role: "agent" | "user"; text: string; turn?: number };
 ```
-`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex` (word being taught = the latest "N of 5" said by the agent, or past a logged word once the learner has spoken after that log).
+`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex(words, results, transcript, turnsDone)` (the card moves past a logged word, or to a "Word N of 5" / "two of five" cue, only once the coach turn in which it happened has finished), `cleanSpeech` (strips V3 `[slow]` tags).
 
 ### 5.2 Language config
 | LanguageId | `overrides.agent.language` | `{{language}}` value | Meaning field used |
@@ -111,7 +111,7 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 | Word list missing/empty | Agent says the lesson did not load and stops (prompt v3); page should never start without 5 words |
 | Off-topic question | Agent refuses and returns to the current word (prompt v3 "Scope") |
 | Agent logs the same word twice | Replace the earlier entry for that word |
-| `log_result` arrives before the feedback is spoken | Dot updates at once; the card stays and shows Learned ✓ / Keep practising + tip; it moves on at "Word N of 5" or the learner's next utterance |
+| `log_result` arrives before the feedback is spoken | Dot updates at once; the card stays and shows Learned ✓ / Keep practising + tip; it moves on when that coach turn ends (page counts speaking→listening in `turnsDone`) |
 | Agent skips `log_result` for a word | Card still advances on "Word N of 5"; the dot shows "–"; the summary shows "Not reached" for it. Prompt v4 makes the call mandatory. |
 | Unsupported / in-app browser (no WebRTC) | Advise opening in Chrome/Safari |
 | Kannada voice not fully natural | Kept as spoken Kanglish, labelled **"ಕನ್ನಡ (Beta)"** in the picker (`LANGUAGES.kannada.beta`) — user decision after test 1.6a |

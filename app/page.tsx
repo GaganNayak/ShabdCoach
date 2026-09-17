@@ -9,6 +9,7 @@ import { TRACKS } from "@/lib/words";
 import {
   LANGUAGES,
   buildWordList,
+  cleanSpeech,
   pickWords,
   upsertResult,
   type LanguageId,
@@ -40,7 +41,9 @@ function App() {
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [summary, setSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const lines = useRef(0); // transcript length, read synchronously by log_result
+  const [turnsDone, setTurnsDone] = useState(0); // finished coach speaking turns
+  const turns = useRef(0); // same, readable synchronously inside tool/message callbacks
+  const lastMode = useRef("listening");
   const heard = useRef(false); // got at least one message → a real session happened
   const ending = useRef(false); // end_session called → hang up once the goodbye finishes
 
@@ -64,7 +67,9 @@ function App() {
     setTranscript([]);
     setSummary(null);
     heard.current = false;
-    lines.current = 0;
+    turns.current = 0;
+    lastMode.current = "listening";
+    setTurnsDone(0);
     ending.current = false;
     setPhase("session");
 
@@ -92,7 +97,7 @@ function App() {
               recalled: p.recalled === true || p.recalled === "true",
               used_correctly: p.used_correctly === true || p.used_correctly === "true",
               tip: String(p.tip ?? ""),
-              at: lines.current,
+              turn: turns.current,
             }),
           );
           return "ok";
@@ -106,10 +111,11 @@ function App() {
       },
       onMessage: ({ message, role }) => {
         heard.current = true;
-        lines.current += 1;
-        setTranscript((t) => [...t, { role, text: message }]);
+        setTranscript((t) => [...t, { role, text: cleanSpeech(message), turn: turns.current }]);
       },
       onModeChange: ({ mode }) => {
+        if (lastMode.current === "speaking" && mode === "listening") setTurnsDone(++turns.current);
+        lastMode.current = mode;
         if (ending.current && mode === "listening") endSession();
       },
       onError: (message) => {
@@ -137,7 +143,7 @@ function App() {
         />
       )}
       {phase === "session" && (
-        <SessionScreen track={track} language={language} words={words} transcript={transcript} results={results} onEnd={endSession} />
+        <SessionScreen track={track} language={language} words={words} transcript={transcript} results={results} turnsDone={turnsDone} onEnd={endSession} />
       )}
       {phase === "summary" && (
         <SummaryScreen words={words} results={results} summary={summary} onAgain={start} onChange={() => setPhase("setup")} />
