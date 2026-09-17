@@ -78,18 +78,15 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.23 (G)** Prompt v7 + tool descriptions published. Tested on **iPhone Safari**: no ✓ before the sentence ✅, ½ for right meaning + wrong sentence ✅, ✓ for both ✅.
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
-## Phase 5 — Test & harden (~1 h) 🟡 IN PROGRESS
+## Phase 5 — Test & harden (~1 h) ✅ DONE
 - [x] **5.1 (G)** Kannada (Beta) session: card meanings ✅, card sync ✅, ½/✓ + summary ✅, **but the voice was choppy and then went silent**.
 - [x] **5.1a (C)** Diagnosed: the audio stream ran only ~30 ms ahead of playback in every language (Kannada mixed: −9 ms → underrun). Fix: back to **WebRTC** (jitter buffer); the cue tracker now also works without raw PCM.
 - [x] **5.1b (C)** WebRTC retest: dropped by the agent (`reason: agent`) — intermittently, then consistently; WebSocket works 2/2. Default stays **WebSocket**; `?conn=webrtc` kept for retrying later.
 - [x] **5.1c (C+G)** Kannada decision (user): **keep the voice, labelled Beta**, plus an on-screen note that it can stutter. Greeting overrides dropped (they need `firstMessage`, which we no longer send) → greetings move to the dashboard language presets.
 - [x] **5.1d (G)** Dashboard first messages set for English / Hindi / Kannada presets + published.
-- [~] **5.2 (G)** Deployed-URL device tests (redo the passing ones only if 5.1b changes behaviour):
-  - [x] **iPhone Safari** ✅: mic prompt, audio heard, replies transcribed, ½/✓ scoring, card sync at "Word 2 of 5", layout OK, screen stays on, End → summary.
-  - [ ] **Android Chrome**: same checklist.
-- [ ] **5.3 (C)** Fix the bugs found; re-deploy.
-- [~] **5.4 (G+C)** Edge cases from ARCHITECTURE §6 on the live URL: deny mic ✅, End early ✅ (partial summary with "Not reached"); remaining: airplane mode mid-session, WhatsApp in-app browser.
-  Done when: every §6 row behaves as specified on the live URL.
+- [x] **5.2 (G)** Deployed-URL device tests: **iPhone Safari ✅** (mic, audio, scoring, card sync, layout, screen on, End→summary) · **Android Chrome ✅**
+- [x] **5.3 (C)** Bugs found in Phase 5 fixed and deployed (card timing, WebSocket transport, Kannada beta note).
+- [x] **5.4 (G+C)** Edge cases ✅: deny mic → error + retry · End early → partial summary · airplane mode mid-session · WhatsApp in-app browser.
 
 ## Phase 6 — Polish (optional, ~1 h)
 - [ ] **6.1 (C)** `localStorage` "weak words": words missed last time are included first next session.

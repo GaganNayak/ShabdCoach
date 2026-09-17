@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–4 done (except 2.4 Kannada review) · **Phase 5 in progress** (iPhone Safari ✅)
-- **Next step (user):** 5.2 Android Chrome · 5.4 airplane mode + WhatsApp in-app browser. Then Phase 6 (optional polish) and Phase 7 (README, demo video, submit).
+- **Phase:** 0–5 done (except 2.4 Kannada word review) → **Phase 6 (optional polish) + Phase 7 (submission)**
+- **Next step:** AI → Phase 6 polish + 7.1 README · user → 7.2 demo video, 7.3 final check (minutes left for reviewers), 7.4 submit.
 - **Connection:** `connectionType: "websocket"` (WebRTC is dropped by this agent — 5.1c). Debug flags on the live URL: `?conn=webrtc|websocket`, `?ov=0|lang|first`. Greeting override **off** → greetings come from the dashboard language presets.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,13 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** `.next/` goes stale (iCloud `* 2.*` duplicates; deleted routes still referenced in `.next/dev/types`) and breaks `tsc` → `rm -rf .next` and rebuild
+
+---
+
+## 2026-09-17 — Phase 5 ✅ closed
+- 5.1d verified live: the Hinglish greeting now comes from the dashboard preset ("नमस्ते! मैं Shabd Coach हूँ। आज हम Interview basics jobs के लिए 5 useful English words सीखेंगे। Ready हैं?").
+- User confirmed **5.2 Android Chrome ✅** and **5.4 edge cases ✅** (deny mic, End early, airplane mode mid-session, WhatsApp in-app browser).
+- Known limitation carried to the README: Kannada voice (Beta) can stutter on WebSocket; the fix is WebRTC, which this agent currently drops.
 
 ---
 
