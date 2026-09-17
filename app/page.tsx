@@ -77,7 +77,7 @@ function App() {
         agent: {
           language: LANGUAGES[language].agentCode,
           // Needs Security → Overrides → "First message" enabled on the agent, else the session is dropped.
-          ...(GREETING_OVERRIDE && { firstMessage: LANGUAGES[language].greeting.replace("{track}", TRACKS[track].label) }),
+          ...(GREETING_OVERRIDE ? { firstMessage: LANGUAGES[language].greeting.replace("{track}", TRACKS[track].label) } : {}),
         },
       },
       clientTools: {
