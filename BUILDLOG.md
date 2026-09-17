@@ -25,6 +25,7 @@ Running log of what was built, for handing off to any AI tool or developer.
   - Allowlist: Security tab, **exact hostname match**, up to 10 hosts → use `localhost:3000`, not `localhost`.
 - `agent-prompt.md`: added dashboard **test values** (track/language/word_list) and fixed the allowlist host.
 - Tool params: Value Type = **LLM Prompt** for all; clearer param descriptions added to `agent-prompt.md` (user asked during 1.2).
+- **Allowlist:** the dashboard rejects `localhost:3000` ("Hostname must consist of a domain and an optional port"). Decision: allowlist = `shabd-coach.vercel.app` only; clear it temporarily during local voice testing (new task 4.0). Rejected `lvh.me:3000`: it passes validation, but http on a non-localhost host isn't a secure context, so `getUserMedia` (mic) is blocked.
 - **Kannada voice:** the Voice Library has no Kannada-native voice. That's not a blocker: set the TTS model to **V3 Conversational** (Kannada supported; Flash v2.5 isn't) and use an Indian-accent voice. Pending an ear test.
 - **Open:** Kannada appearing in the Additional Languages dropdown and sounding right (task 1.5).
 

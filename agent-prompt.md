@@ -94,6 +94,7 @@ For every param: **Value Type = LLM Prompt** (the agent's AI fills the value fro
 - [ ] **TTS model: V3 Conversational** (required for Kannada; Flash v2.5 has no Kannada). Avoid Professional Voice Clones (v3 doesn't preserve them).
 - [ ] Voice: a warm Indian-accent voice (no Kannada-native voice needed; the model supplies the language). Verify Kannada sounds natural in the test.
 - [ ] LLM: a fast model (latency matters more than depth here).
-- [ ] Security: public agent (auth off), allowlist = `localhost:3000` + `shabd-coach.vercel.app` (exact hostname match; port included).
+- [ ] Security: public agent (auth off), allowlist = `shabd-coach.vercel.app` only (the dashboard rejects `localhost:3000` because it needs a dotted domain). Keep **Fail when Origin header is missing** ON.
+- [ ] Local voice testing (Phase 4): temporarily remove the allowlist entry while testing on localhost, and re-add it before sharing the link. `lvh.me:3000` passes validation but isn't a secure context, so the browser blocks the mic.
 - [ ] Security → Overrides: enable **language** and **first message** only (the page sets en/hi/kn per session).
 - [ ] Usage cap / max call duration: ~8 min.

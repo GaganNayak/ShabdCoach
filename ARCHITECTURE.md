@@ -34,7 +34,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 ┌──────────────────────────── ElevenLabs Agent "Shabd Coach" ──────────────────────────────┐
 │  System prompt (agent-prompt.md) with {{track}} {{language}} {{word_list}}                 │
 │  STT → LLM → TTS · Client tools declared: log_result, end_session                        │
-│  Security: public, allowlist [localhost:3000, shabd-coach.vercel.app], overrides: lang+1st msg│
+│  Security: public, allowlist [shabd-coach.vercel.app], overrides: lang+1st msg│
 └──────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -112,7 +112,7 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 | Kannada voice unsupported by model | Hide Kannada or fall back to English; decided after the dashboard test |
 
 ## 7. Security & cost
-- The agent ID is public by design (`NEXT_PUBLIC_`). Protection comes from the **allowlist** (only our domains), **max duration ~8 min** and a **usage cap** in the dashboard.
+- The agent ID is public by design (`NEXT_PUBLIC_`). Protection comes from the **allowlist** (`shabd-coach.vercel.app` only; the dashboard rejects `localhost`, so it's cleared temporarily during local dev), **max duration ~8 min** and a **usage cap** in the dashboard.
 - Overrides enabled: **language** and **first message** only. The prompt is not overridable, so nobody can repurpose the agent from the browser.
 - Upgrade path if abused: make the agent private → add `app/api/token/route.ts` (Node) that uses the API key to fetch a conversation token → pass `conversationToken` to `startSession`.
 

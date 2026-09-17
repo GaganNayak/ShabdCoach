@@ -134,3 +134,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Deployed to Vercel → https://shabd-coach.vercel.app (auto-deploys from GitHub main).
 - 2026-09-17: Docs check for Phase 1: agents support v3 Conversational + Flash v2.5 languages; additional languages switch the agent to a multilingual model; allowlist is exact-host (use `localhost:3000`). Kannada still to confirm in the dashboard dropdown.
 - 2026-09-17: User found no Kannada voice in the Voice Library. Resolution: language support comes from the TTS model → use **V3 Conversational** (supports Kannada) with an Indian-accent voice. Fallback if it sounds bad: Kannada as on-screen text.
+- 2026-09-17: Allowlist can't hold localhost → production domain only; clear temporarily for local testing.
