@@ -29,7 +29,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 │         │                        │    │                                                  │
 │         └─► useConversation().startSession({ agentId, dynamicVariables, overrides })     │
 └───────────────────────────────────────────┬──────────────────────────────────────────────┘
-                                            │ WebRTC / WebSocket (mic audio ⇄ agent audio)
+                                            │ WebSocket (mic audio ⇄ agent audio)
                                             ▼
 ┌──────────────────────────── ElevenLabs Agent "Shabd Coach" ──────────────────────────────┐
 │  System prompt (agent-prompt.md) with {{track}} {{language}} {{word_list}}                 │
@@ -42,7 +42,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 1. The user picks a **track** and a **language** → taps **Start**.
 2. The page requests mic permission (`getUserMedia`). If denied → show a friendly message and stop.
 3. `pickWords(track, 5)` chooses 5 random words. `buildWordList(words, language)` turns them into a text block.
-4. `startSession({ agentId, dynamicVariables: { track, language, word_list }, overrides: { agent: { language } }, clientTools, callbacks })` is called from the Start tap in `app/page.tsx`. `firstMessage` override is behind `GREETING_OVERRIDE` (off).
+4. `startSession({ agentId, dynamicVariables: { track, language, word_list }, overrides: { agent: { language } }, clientTools, callbacks })` is called from the Start tap in `app/page.tsx`. `firstMessage` override = `LANGUAGES[lang].greeting` (`GREETING_OVERRIDE = true`). **`connectionType: "websocket"`**: WebRTC sessions were dropped by LiveKit, while WebSocket works.
 5. The agent teaches the loop. After each word it calls **`log_result`** → the page appends to `results[]` → the scoreboard updates.
 6. After the review quiz the agent calls **`end_session`** → the page stores the summary → hangs up when the agent returns to listening (after its goodbye; 15 s fallback) → SummaryScreen.
 7. If the connection drops, or the user taps **End** before `end_session` → SummaryScreen with partial `results[]`. If it drops **before any message** → back to Setup with an error.

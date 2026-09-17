@@ -49,15 +49,16 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **3.5 (C)** Mobile-first styling; check at 375px width.
   Done when: all 3 screens are clickable end to end with fake data, on desktop and mobile widths.
 
-## Phase 4 — Voice wiring (~1.5 h, needs 1.7) 🟡 IN PROGRESS
+## Phase 4 — Voice wiring (~1.5 h, needs 1.7) 🟡 code done, awaiting 4.7 live run by the user
 - [x] ~~**4.0 (G)** Clear the allowlist for local testing~~ → **not needed**: test on https://shabd-coach.vercel.app (already allowlisted). Localhost is dropped by the allowlist (confirmed).
 - [x] **4.1 (C)** Install `@elevenlabs/react` (1.15.2). API differs from the docs we planned against: `ConversationProvider` + `useConversationControls` / `useConversationStatus` / `useConversationMode`.
 - [x] **4.2 (C)** Mic permission requested inside the Start tap; denied / no-mediaDevices → error on the setup screen.
-- [x] **4.3 (C)** `startSession` with dynamicVariables + `overrides.agent.language`. Per-language greeting (`firstMessage`) is coded but **off** (`GREETING_OVERRIDE = false`) until confirmed allowed.
+- [x] **4.3 (C)** `startSession` with dynamicVariables + `overrides.agent.language` + per-language greeting (`firstMessage`, `GREETING_OVERRIDE = true`) + `connectionType: "websocket"`.
 - [x] **4.4 (C)** `onMessage` → transcript; `useConversationMode` + status → orb.
 - [x] **4.5 (C)** `clientTools.log_result` → results (upsert); `end_session` → summary, hang up when the agent goes back to listening (15 s fallback).
 - [x] **4.6 (C)** End button + disconnect → summary; disconnect before any message → back to setup with an error.
-- [ ] **4.7a (G)** Add agent minutes. Cause of dropped sessions = `quota_exceeded` (free plan: 15 min/mo). Recommended: Starter ($6, 75 min). Set max call duration to ~6 min.
+- [x] **4.7a (G)** Add agent minutes (upgraded to Starter). Cause of dropped sessions = `quota_exceeded` (free plan: 15 min/mo). Recommended: Starter ($6, 75 min). Set max call duration to ~6 min.
+- [x] **4.7b (C)** After the upgrade, WebRTC sessions still dropped (LiveKit `connection_state_changed`). Fix: WebSocket. Verified on prod: connects, Hinglish greeting spoken.
 - [ ] **4.7 (G+C)** One full live session on the prod URL (you on Chrome; AI reads the result from you, no headless runs, to save minutes).
   Done when: a full live 5-word session works on the live URL and lands on a correct summary.
 

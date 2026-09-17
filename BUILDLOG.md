@@ -6,16 +6,29 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · **Phase 4 code done, blocked on live test (4.7)**
-- **🔴 Blocker (root cause found):** ElevenLabs dashboard: `[quota_exceeded] You've run out of credits.` The agent closes sessions (`reason: agent`) before any message when minutes are used up. **Not a code bug.** Free plan = 15 agent call minutes/month (elevenlabs.io/pricing/agents), used up by dashboard tests + ~8 headless test runs.
-- **Next step:** the user adds minutes (recommended: Starter, $6/mo, 75 min, 6 concurrent) → one live 5-word session (4.7) → Phase 5. **Save minutes:** no more headless voice runs unless needed; keep max duration short.
-- **Test on prod, not localhost:** localhost is dropped by the agent allowlist (by design). Headless test script (scratchpad, not in repo): puppeteer-core + Chrome `--use-fake-device-for-media-stream`.
+- **Phase:** 0–3 done (except 2.4) · **Phase 4 code done & connecting on prod** → waiting for the user's full live 5-word session (4.7) → Phase 5
+- **Next step (user):** on https://shabd-coach.vercel.app (Chrome), do one full Hinglish session; report whether the dots fill, the summary appears, and anything odd.
+- **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
+- **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
+- **Test on prod, not localhost** (localhost isn't allowlisted).
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`; user git has `pull.rebase=true`, so commit before pulling)
 - **Live:** https://shabd-coach.vercel.app (auto-deploys on push; env `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`, type Config)
-- **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, prompt v3, TTS V3 Conversational, allowlist `shabd-coach.vercel.app`
+- **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, prompt v3, TTS V3 Conversational, allowlist `shabd-coach.vercel.app`, overrides: language + first message
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
-- **Checks:** `npm test` · `npm run build` (then `npx tsc --noEmit`; tsc needs `.next/types` from a build/dev run) · `npm run lint`
-- **Gotcha:** the project lives on the iCloud-synced Desktop, which creates `* 2.*` duplicate files in `.next/` and breaks `tsc`. Fix: `rm -rf .next`.
+- **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
+- **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.7b: WebRTC → WebSocket fix
+- After the Starter upgrade, the dashboard "Test AI agent" worked, but the page still failed. Prod headless run: `{"reason":"error","message":"LiveKit connection state changed to disconnected"}` plus LiveKit DataChannel "User-Initiated Abort" errors.
+- Diagnosis with a raw WebSocket script (`ws`, `Origin: https://shabd-coach.vercel.app`, handshake only, closed after `conversation_initiation_metadata`):
+  - no dynamic vars → close 1008 "Missing required dynamic variables in first message: {'language', 'track'}" (expected)
+  - dynamic vars ✅ · + `language: hi` ✅ · + `language: en` ✅ · + `first_message` ✅
+  - ⇒ the config, allowlist, overrides and quota are all fine; the **WebRTC (LiveKit) transport** was failing.
+- Fix: `connectionType: "websocket"` in `startSession`. Also turned on `GREETING_OVERRIDE` (first-message override verified allowed).
+- Verified on prod (1b367a1): connected; the Hinglish greeting "नमस्ते! मैं Shabd Coach हूँ। आज हम Interview basics jobs के लिए 5 useful English words सीखेंगे। Ready हैं?" arrived; orb "Coach is speaking"; word card rendered.
+- Unknown: why WebRTC failed (it worked once earlier). WebSocket is fine for this use; revisit only if audio quality or echo becomes an issue on phones (WebRTC has built-in echo cancellation).
 
 ---
 

@@ -141,3 +141,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Vercel env var set (Config type). Phase 3 done: setup/session/summary screens with mock data; current-word card shows the meaning in the chosen language.
 - 2026-09-17: Phase 4 code done (voice wired via @elevenlabs/react provider). One prod session worked; later sessions are dropped by the agent before speaking → dashboard check needed. Testing happens on the prod URL (localhost is not allowlisted).
 - 2026-09-17: Root cause of dropped sessions: ElevenLabs quota_exceeded (free plan 15 agent min/mo). Need a paid plan (Starter $6 = 75 min) for testing + reviewers; demo video is the backup.
+- 2026-09-17: Upgraded to ElevenLabs Starter. WebRTC sessions still dropped → switched to WebSocket; voice now works on prod with natural per-language greetings.
