@@ -4,6 +4,7 @@ export type { TrackId, Word };
 export type LanguageId = "english" | "hinglish" | "kannada";
 export type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string };
 export type Phase = "setup" | "session" | "summary";
+export type TranscriptLine = { role: "agent" | "user"; text: string };
 
 // agentCode → overrides.agent.language; label → {{language}}; field → which meaning goes in {{word_list}}
 export const LANGUAGES = {
