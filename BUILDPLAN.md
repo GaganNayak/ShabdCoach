@@ -83,7 +83,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **5.1a (C)** Diagnosed: the audio stream ran only ~30 ms ahead of playback in every language (Kannada mixed: −9 ms → underrun). Fix: back to **WebRTC** (jitter buffer); the cue tracker now also works without raw PCM.
 - [x] **5.1b (C)** WebRTC retest: dropped by the agent (`reason: agent`) — intermittently, then consistently; WebSocket works 2/2. Default stays **WebSocket**; `?conn=webrtc` kept for retrying later.
 - [x] **5.1c (C+G)** Kannada decision (user): **keep the voice, labelled Beta**, plus an on-screen note that it can stutter. Greeting overrides dropped (they need `firstMessage`, which we no longer send) → greetings move to the dashboard language presets.
-- [ ] **5.1d (G)** Dashboard: set the **first message** for English / Hindi / Kannada presets from `agent-prompt.md` (the auto-translated Hindi one is formal and says "मैं Hinglish में समझाऊँगा"). Publish.
+- [x] **5.1d (G)** Dashboard first messages set for English / Hindi / Kannada presets + published.
 - [~] **5.2 (G)** Deployed-URL device tests (redo the passing ones only if 5.1b changes behaviour):
   - [x] **iPhone Safari** ✅: mic prompt, audio heard, replies transcribed, ½/✓ scoring, card sync at "Word 2 of 5", layout OK, screen stays on, End → summary.
   - [ ] **Android Chrome**: same checklist.
