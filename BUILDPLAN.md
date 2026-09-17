@@ -15,6 +15,8 @@ Architecture reference: `ARCHITECTURE.md`.
   Done when: code is visible on GitHub.
 - [ ] **0.4 (G)** Import the repo into Vercel → deploy.
   Done when: a `*.vercel.app` URL loads. **Note the domain; it's needed for the agent allowlist.**
+- [x] **0.5 (C)** Init shadcn/ui (Radix base, radix-nova style).
+  Done when: `components.json` exists and the build passes.
 
 ## Phase 1 — ElevenLabs agent (~1 h, mostly G)
 - [ ] **1.1 (G)** Create the agent "Shabd Coach"; paste the system prompt + first message from `agent-prompt.md`.
@@ -36,6 +38,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [ ] **2.4 (G)** Kannada meanings reviewed by a native speaker; fixes applied.
 
 ## Phase 3 — UI screens with mock data (~2 h)
+> Use shadcn/ui components. Likely set: `card`, `button`, `badge`, `toggle-group` (language), `scroll-area` (transcript), `progress`, `sonner` (toasts). Add them only when a screen needs them.
 - [ ] **3.1 (C)** `app/page.tsx`: phase state machine (setup → session → summary) + shared state.
 - [ ] **3.2 (C)** `SetupScreen`: 4 track cards, language picker (English / Hinglish / ಕನ್ನಡ), Start button, one-line explainer.
 - [ ] **3.3 (C)** `SessionScreen` (mock): speaking/listening orb, transcript list, scoreboard of 5 words (pending / ✅ / ❌), End button.

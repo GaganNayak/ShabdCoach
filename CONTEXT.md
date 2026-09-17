@@ -94,7 +94,7 @@ Session completion rate, words correctly recalled in review, D1 return rate, ave
   - Tulu and Konkani were considered and dropped: no TTS support and no native-speaker check available (§2.5). Listed as a future step.
   - Word data: `word`, `meaning_en`, `meaning_hinglish`, `meaning_kn`, `example`
   - Kannada needs a dashboard check that the agent voice model speaks it (Eleven v3 lists it; low-latency models unclear)
-- [x] Stack (2026-09-17): **Next.js + React + TS + Tailwind** (user choice, over plain HTML); `@elevenlabs/react` SDK with custom UI; public agent + allowlist + cap; Vercel via GitHub.
+- [x] Stack (2026-09-17): **Next.js + React + TS + Tailwind + shadcn/ui** (user choice, over plain HTML); `@elevenlabs/react` SDK with custom UI; public agent + allowlist + cap; Vercel via GitHub.
 - [x] Accounts available: ElevenLabs, Vercel/Netlify, GitHub. No separate LLM key needed (the ElevenLabs agent includes the LLM).
 
 ## 5. Architecture options (decided: C. Hybrid)
@@ -128,3 +128,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Step 1 done (words.js). Step 2 drafted (agent-prompt.md); dashboard setup pending on the user's ElevenLabs account. Session = 5 words.
 - 2026-09-17: Architecture decided (Next.js + ElevenLabs React SDK, no backend). ARCHITECTURE.md + BUILDPLAN.md created; CONTEXT §5.1/§6 now point to them.
 - 2026-09-17: Phase 0.1–0.2 done (Next.js 16 scaffold + git). BUILDLOG.md started for handoff.
+- 2026-09-17: shadcn/ui added as the UI component library (user request).

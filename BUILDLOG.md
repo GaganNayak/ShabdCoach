@@ -7,12 +7,25 @@ Running log of what was built, for handing off to any AI tool or developer.
 
 ## ▶ Current state (keep this block updated)
 - **Phase:** 0 — Project setup
-- **Done:** 0.1, 0.2
+- **Done:** 0.1, 0.2, 0.5
 - **Next step:** 0.3 (user) — create a public GitHub repo and push. Then 0.4 — import into Vercel and note the `*.vercel.app` domain.
 - **Can run in parallel:** Phase 1 (ElevenLabs agent setup, user) and Phase 2 (data & logic, AI)
 - **Blockers:** none
 - **Run locally:** `npm install` → `npm run dev` → http://localhost:3000
 - **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (not needed until Phase 4)
+
+---
+
+## 2026-09-17 — Phase 0.5: shadcn/ui
+**Did**
+- The user asked for shadcn/ui. Ran `npx shadcn@latest init -d -b radix --no-monorepo -y` (shadcn CLI 4.21).
+- Result: `components.json` (style `radix-nova`, base color neutral, CSS variables, lucide icons), `components/ui/button.tsx`, `lib/utils.ts`, and `app/globals.css` updated with theme tokens and `@import "shadcn/tailwind.css"`.
+- New deps: `radix-ui`, `class-variance-authority`, `lucide-react`, `tw-animate-css`, `shadcn`, `cn`.
+  - **Note:** newer shadcn uses its own `cn` package (github.com/shadcn-ui/cn) instead of `clsx` + `tailwind-merge`. `lib/utils.ts` re-exports it. This is expected, not a typo.
+
+**Verified:** `npm run build` ✅ · `npm run lint` ✅ (same 1 expected warning)
+
+**Next person:** add components with `npx shadcn@latest add <name>` as screens need them (list in BUILDPLAN Phase 3).
 
 ---
 

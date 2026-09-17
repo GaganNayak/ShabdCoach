@@ -7,7 +7,8 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 |---|---|---|
 | Voice agent | **ElevenLabs Agents** (STT + LLM + TTS in one) | Low latency, Hindi + Kannada voices, no backend. Apna uses ElevenLabs too. |
 | Client ↔ agent | **`@elevenlabs/react` SDK** (`useConversation`) | We need a custom UI: live transcript, scoreboard, summary, and a language switch for each session |
-| Frontend | **Next.js (App Router) + React + TypeScript + Tailwind**, on the Node.js runtime | The user's choice. Deploys natively to Vercel. |
+| Frontend | **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4**, on the Node.js runtime | The user's choice. Deploys natively to Vercel. |
+| UI components | **shadcn/ui** (style `radix-nova`, base color neutral, Radix primitives, lucide icons) | The user's choice. Components are copied into `components/ui/` and fully editable. |
 | Backend | **None in v1.** Next.js route handlers are the upgrade path. | The agent is public, so no secret needs protecting |
 | Agent security | Public agent + domain allowlist + max call duration + usage cap | No backend needed. Upgrade path in §7. |
 | Hosting | **Vercel ← GitHub** (auto-deploy on push) | Free `*.vercel.app` link; the repo can be shown in the application |
@@ -54,14 +55,17 @@ voice-agent/
 │  ├─ page.tsx            # "use client"; phase state machine: setup | session | summary
 │  └─ globals.css
 ├─ components/
+│  ├─ ui/                 # shadcn/ui components (add with `npx shadcn@latest add <name>`)
 │  ├─ SetupScreen.tsx     # track cards + language picker + Start
 │  ├─ SessionScreen.tsx   # useConversation wiring, orb, transcript, scoreboard, End button
 │  └─ SummaryScreen.tsx   # score, per-word tips, Practice again
 ├─ lib/
+│  ├─ utils.ts            # shadcn `cn()` helper
 │  ├─ words.ts            # TRACKS word bank (ported from words.js)
 │  ├─ session.ts          # pickWords, buildWordList, LANGUAGES config, types
 │  └─ session.test.ts     # one small check for session.ts
 ├─ agent-prompt.md        # source of truth for the agent's dashboard config
+├─ components.json       # shadcn config
 ├─ .env.local             # NEXT_PUBLIC_ELEVENLABS_AGENT_ID=...
 ├─ CONTEXT.md · ARCHITECTURE.md · BUILDPLAN.md · README.md
 ```
