@@ -1,0 +1,77 @@
+# BUILDPLAN — Shabd Coach
+
+Small tasks, built in phases. Each task has a **Done when** check. Tick boxes as we go and log every step in `BUILDLOG.md`.
+Owner: **G** = Gagan (needs your accounts or judgment) · **C** = Claude.
+Architecture reference: `ARCHITECTURE.md`.
+
+---
+
+## Phase 0 — Project setup (~30 min)
+- [x] **0.1 (C)** Scaffold Next.js (App Router, TS, Tailwind, ESLint) in the project folder, keeping the existing docs.
+  Done when: `npm run dev` shows the default page at localhost:3000.
+- [x] **0.2 (C)** `git init`, `.gitignore` (incl. `.env.local`), first commit.
+  Done when: `git log` shows the initial commit.
+- [ ] **0.3 (G)** Create a GitHub repo (public) and push.
+  Done when: code is visible on GitHub.
+- [ ] **0.4 (G)** Import the repo into Vercel → deploy.
+  Done when: a `*.vercel.app` URL loads. **Note the domain; it's needed for the agent allowlist.**
+
+## Phase 1 — ElevenLabs agent (~1 h, mostly G)
+- [ ] **1.1 (G)** Create the agent "Shabd Coach"; paste the system prompt + first message from `agent-prompt.md`.
+- [ ] **1.2 (G)** Add client tools `log_result` and `end_session` with the exact params in `agent-prompt.md`.
+- [ ] **1.3 (G)** Languages: default English; add Hindi + Kannada. Pick the voice + a fast LLM.
+- [ ] **1.4 (G)** Security tab: public agent, allowlist `localhost` + Vercel domain, enable overrides for **language** and **first message**, max duration ~8 min, usage cap.
+- [ ] **1.5 (G+C)** Test in the dashboard: 1 session each in English, Hinglish, Kannada. Note issues (too long turns, off-list words, Kannada voice quality).
+  Done when: all 3 languages complete a word loop; the Kannada verdict is recorded in CONTEXT.md.
+- [ ] **1.6 (C)** Tune `agent-prompt.md` from the test notes; G re-pastes.
+- [ ] **1.7 (G)** Share the agent ID → `.env.local` + Vercel env var `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`.
+
+> Phases 2–3 do not need the agent and can run in parallel with Phase 1.
+
+## Phase 2 — Data & logic (~45 min)
+- [ ] **2.1 (C)** Port `words.js` → `lib/words.ts` with types; delete `words.js`.
+- [ ] **2.2 (C)** `lib/session.ts`: types, `LANGUAGES` config, `pickWords(track, n)`, `buildWordList(words, lang)`.
+- [ ] **2.3 (C)** `lib/session.test.ts`: checks that pickWords returns n unique words from the track and that buildWordList includes the right meaning field.
+  Done when: the test passes.
+- [ ] **2.4 (G)** Kannada meanings reviewed by a native speaker; fixes applied.
+
+## Phase 3 — UI screens with mock data (~2 h)
+- [ ] **3.1 (C)** `app/page.tsx`: phase state machine (setup → session → summary) + shared state.
+- [ ] **3.2 (C)** `SetupScreen`: 4 track cards, language picker (English / Hinglish / ಕನ್ನಡ), Start button, one-line explainer.
+- [ ] **3.3 (C)** `SessionScreen` (mock): speaking/listening orb, transcript list, scoreboard of 5 words (pending / ✅ / ❌), End button.
+- [ ] **3.4 (C)** `SummaryScreen`: score, per-word tips, Practice again.
+- [ ] **3.5 (C)** Mobile-first styling; check at 375px width.
+  Done when: all 3 screens are clickable end to end with fake data, on desktop and mobile widths.
+
+## Phase 4 — Voice wiring (~1.5 h, needs 1.7)
+- [ ] **4.1 (C)** Install `@elevenlabs/react`; confirm the hook API against the installed version.
+- [ ] **4.2 (C)** Mic permission request on Start, with the denied state UI.
+- [ ] **4.3 (C)** `startSession` with dynamicVariables + language/firstMessage overrides.
+- [ ] **4.4 (C)** `onMessage` → transcript; `onModeChange` / `isSpeaking` → orb.
+- [ ] **4.5 (C)** `clientTools.log_result` → results (dedupe by word); `end_session` → summary.
+- [ ] **4.6 (C)** End button + unexpected disconnect → summary with partial results; `onError` → toast + back to setup.
+  Done when: a full live 5-word session in English works locally and lands on a correct summary.
+
+## Phase 5 — Test & harden (~1 h)
+- [ ] **5.1 (G+C)** Live test: Hinglish and Kannada sessions end to end.
+- [ ] **5.2 (G)** Deployed-URL test on Android Chrome + iPhone Safari (mic prompt, audio playback, layout).
+- [ ] **5.3 (C)** Fix the bugs found; re-deploy.
+- [ ] **5.4 (C)** Edge cases from ARCHITECTURE §6: deny mic, End early, airplane mode mid-session, open inside the WhatsApp in-app browser.
+  Done when: every §6 row behaves as specified on the live URL.
+
+## Phase 6 — Polish (optional, ~1 h)
+- [ ] **6.1 (C)** `localStorage` "weak words": words missed last time are included first next session.
+- [ ] **6.2 (C)** Branding: name, favicon, OG image/title for a nice link preview when shared.
+- [ ] **6.3 (C)** Small "How it works" section on the setup screen (Teach → Recall → Use → Review).
+
+## Phase 7 — Submission (~1 h)
+- [ ] **7.1 (C)** `README.md`: problem, target user, learning loop + research, architecture diagram, metrics we'd track, what's next (Tulu/Konkani, SRS, pronunciation).
+- [ ] **7.2 (G)** Record a 60–90s demo video (Loom), one Hinglish or Kannada session.
+- [ ] **7.3 (G)** Final check of the live link in an incognito window; confirm the usage cap leaves room for reviewers.
+- [ ] **7.4 (G)** Submit: live link + GitHub repo + demo video.
+
+---
+
+### Critical path
+`0.1 → 0.4 (domain) → 1.4 (allowlist) → 1.7 (agent ID) → Phase 4 → Phase 5 → Phase 7`
+Phases 2–3 run alongside Phase 1.
