@@ -65,9 +65,9 @@ voice-agent/
 │  ├─ session.ts          # pickWords, buildWordList, LANGUAGES config, types
 │  └─ session.test.ts     # one small check for session.ts
 ├─ agent-prompt.md        # source of truth for the agent's dashboard config
-├─ components.json       # shadcn config
+├─ components.json        # shadcn config
 ├─ .env.local             # NEXT_PUBLIC_ELEVENLABS_AGENT_ID=...
-├─ CONTEXT.md · ARCHITECTURE.md · BUILDPLAN.md · README.md
+├─ CONTEXT.md · ARCHITECTURE.md · BUILDPLAN.md · BUILDLOG.md · README.md
 ```
 
 ## 5. Contracts
