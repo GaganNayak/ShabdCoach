@@ -131,3 +131,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: shadcn/ui added as the UI component library (user request).
 - 2026-09-17: Pushed to GitHub (GaganNayak/ShabdCoach). Phase 2.1–2.3 done (lib/words.ts, lib/session.ts, tests).
 - 2026-09-17: Deployed to Vercel → https://shabd-coach.vercel.app (auto-deploys from GitHub main).
+- 2026-09-17: Docs check for Phase 1: agents support v3 Conversational + Flash v2.5 languages; additional languages switch the agent to a multilingual model; allowlist is exact-host (use `localhost:3000`). Kannada still to confirm in the dashboard dropdown.

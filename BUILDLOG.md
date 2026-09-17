@@ -18,6 +18,16 @@ Running log of what was built, for handing off to any AI tool or developer.
 
 ---
 
+## 2026-09-17 — Phase 1 prep (guide given to the user)
+- Checked the ElevenLabs docs before writing the dashboard guide:
+  - Agents can use all languages of **v3 Conversational + Flash v2.5**. Adding "Additional languages" switches the agent to the multilingual model.
+  - Client tools: Tools → Add tool → type **Client** (name, description, params, "Wait for response").
+  - Allowlist: Security tab, **exact hostname match**, up to 10 hosts → use `localhost:3000`, not `localhost`.
+- `agent-prompt.md`: added dashboard **test values** (track/language/word_list) and fixed the allowlist host.
+- **Open:** Kannada appearing in the Additional Languages dropdown and sounding right (task 1.5).
+
+---
+
 ## 2026-09-17 — Phase 0.4: Vercel deploy
 **Did:** the user imported GitHub `ShabdCoach` into Vercel (Hobby, default Next.js settings, no env vars yet). Production domain: **https://shabd-coach.vercel.app**
 **Verified:** `curl` returns 200, and the page is public (no Vercel Authentication wall); it serves the default Next.js page.

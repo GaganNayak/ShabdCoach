@@ -9,6 +9,19 @@ Paste each section into the ElevenLabs Agents dashboard.
 | `language` | `English` / `Hinglish` / `Kannada` |
 | `word_list` | `1. resolve — to solve a problem — (Hinglish: problem ko suljhana) — e.g. "We will resolve your issue within 24 hours."` (5 lines) |
 
+## Test values (dashboard "Test AI agent" asks for these)
+- track: `Customer support`
+- language: `Hinglish` (then repeat with `English`, `Kannada`)
+- word_list:
+```
+1. resolve — to solve a problem (Hinglish: problem ko suljhana) — e.g. "We will resolve your issue within 24 hours."
+2. refund — money given back to a customer (Hinglish: paise wapas karna) — e.g. "Your refund will reach your account in five days."
+3. polite — speaking in a kind and respectful way (Hinglish: vinamra, izzat se baat karne wala) — e.g. "Always stay polite, even with angry customers."
+4. escalate — to pass a problem to a senior person (Hinglish: problem ko senior tak le jaana) — e.g. "I will escalate this to my team leader."
+5. verify — to check that something is correct (Hinglish: jaanch karna ki sahi hai ya nahi) — e.g. "Can I verify your registered phone number?"
+```
+Kannada test word_list: swap the brackets for `(Kannada: ಸಮಸ್ಯೆಯನ್ನು ಬಗೆಹರಿಸು)` etc. from `lib/words.ts`.
+
 ## First message
 ```
 Hi! I'm Shabd Coach. Today we'll learn 5 useful English words for {{track}} jobs. I'll explain in {{language}}. Ready to start?
@@ -78,6 +91,6 @@ Then move to the next word.
 - [ ] Agent language: English, with Hindi + Kannada added as additional languages. **Verify the Kannada voice works** (§2.5 open item).
 - [ ] Voice: a warm Indian-English voice that also handles Hindi and Kannada.
 - [ ] LLM: a fast model (latency matters more than depth here).
-- [ ] Security: public agent (auth off), allowlist = `localhost` + `shabd-coach.vercel.app`.
+- [ ] Security: public agent (auth off), allowlist = `localhost:3000` + `shabd-coach.vercel.app` (exact hostname match; port included).
 - [ ] Security → Overrides: enable **language** and **first message** only (the page sets en/hi/kn per session).
 - [ ] Usage cap / max call duration: ~8 min.

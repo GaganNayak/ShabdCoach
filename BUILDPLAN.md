@@ -22,7 +22,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [ ] **1.1 (G)** Create the agent "Shabd Coach"; paste the system prompt + first message from `agent-prompt.md`.
 - [ ] **1.2 (G)** Add client tools `log_result` and `end_session` with the exact params in `agent-prompt.md`.
 - [ ] **1.3 (G)** Languages: default English; add Hindi + Kannada. Pick the voice + a fast LLM.
-- [ ] **1.4 (G)** Security tab: public agent, allowlist `localhost` + `shabd-coach.vercel.app`, enable overrides for **language** and **first message**, max duration ~8 min, usage cap.
+- [ ] **1.4 (G)** Security tab: public agent, allowlist `localhost:3000` + `shabd-coach.vercel.app`, enable overrides for **language** and **first message**, max duration ~8 min, usage cap.
 - [ ] **1.5 (G+C)** Test in the dashboard: 1 session each in English, Hinglish, Kannada. Note issues (too long turns, off-list words, Kannada voice quality).
   Done when: all 3 languages complete a word loop; the Kannada verdict is recorded in CONTEXT.md.
 - [ ] **1.6 (C)** Tune `agent-prompt.md` from the test notes; G re-pastes.
