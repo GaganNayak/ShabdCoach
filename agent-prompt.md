@@ -78,6 +78,6 @@ Then move to the next word.
 - [ ] Agent language: English, with Hindi + Kannada added as additional languages. **Verify the Kannada voice works** (§2.5 open item).
 - [ ] Voice: a warm Indian-English voice that also handles Hindi and Kannada.
 - [ ] LLM: a fast model (latency matters more than depth here).
-- [ ] Security: public agent (auth off), allowlist = `localhost` + Vercel domain.
+- [ ] Security: public agent (auth off), allowlist = `localhost` + `shabd-coach.vercel.app`.
 - [ ] Security → Overrides: enable **language** and **first message** only (the page sets en/hi/kn per session).
 - [ ] Usage cap / max call duration: ~8 min.

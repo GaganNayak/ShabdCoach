@@ -13,7 +13,7 @@ Architecture reference: `ARCHITECTURE.md`.
   Done when: `git log` shows the initial commit.
 - [x] **0.3 (G)** Create a GitHub repo (public) and push.
   Done when: code is visible on GitHub.
-- [ ] **0.4 (G)** Import the repo into Vercel → deploy.
+- [x] **0.4 (G)** Import the repo into Vercel → deploy.
   Done when: a `*.vercel.app` URL loads. **Note the domain; it's needed for the agent allowlist.**
 - [x] **0.5 (C)** Init shadcn/ui (Radix base, radix-nova style).
   Done when: `components.json` exists and the build passes.
@@ -22,7 +22,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [ ] **1.1 (G)** Create the agent "Shabd Coach"; paste the system prompt + first message from `agent-prompt.md`.
 - [ ] **1.2 (G)** Add client tools `log_result` and `end_session` with the exact params in `agent-prompt.md`.
 - [ ] **1.3 (G)** Languages: default English; add Hindi + Kannada. Pick the voice + a fast LLM.
-- [ ] **1.4 (G)** Security tab: public agent, allowlist `localhost` + Vercel domain, enable overrides for **language** and **first message**, max duration ~8 min, usage cap.
+- [ ] **1.4 (G)** Security tab: public agent, allowlist `localhost` + `shabd-coach.vercel.app`, enable overrides for **language** and **first message**, max duration ~8 min, usage cap.
 - [ ] **1.5 (G+C)** Test in the dashboard: 1 session each in English, Hinglish, Kannada. Note issues (too long turns, off-list words, Kannada voice quality).
   Done when: all 3 languages complete a word loop; the Kannada verdict is recorded in CONTEXT.md.
 - [ ] **1.6 (C)** Tune `agent-prompt.md` from the test notes; G re-pastes.

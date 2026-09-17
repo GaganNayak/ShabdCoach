@@ -34,7 +34,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 ┌──────────────────────────── ElevenLabs Agent "Shabd Coach" ──────────────────────────────┐
 │  System prompt (agent-prompt.md) with {{track}} {{language}} {{word_list}}                 │
 │  STT → LLM → TTS · Client tools declared: log_result, end_session                        │
-│  Security: public, allowlist [localhost, <app>.vercel.app], overrides: language + first msg│
+│  Security: public, allowlist [localhost, shabd-coach.vercel.app], overrides: lang+1st msg│
 └──────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 

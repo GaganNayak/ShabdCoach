@@ -7,13 +7,22 @@ Running log of what was built, for handing off to any AI tool or developer.
 
 ## ▶ Current state (keep this block updated)
 - **Phase:** 2 done (except 2.4) → Phase 3 next
-- **Done:** 0.1, 0.2, 0.3, 0.5, 2.1, 2.2, 2.3
-- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: 0.4 (Vercel deploy + domain), Phase 1 (ElevenLabs agent), 2.4 (Kannada review)
+- **Done:** Phase 0 complete (0.1–0.5), 2.1, 2.2, 2.3
+- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: Phase 1 (ElevenLabs agent), 2.4 (Kannada review)
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`)
+- **Live:** https://shabd-coach.vercel.app (Vercel, auto-deploys on push to `main`)
 - **Test:** `npm test`
 - **Blockers:** none
 - **Run locally:** `npm install` → `npm run dev` → http://localhost:3000
 - **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (not needed until Phase 4)
+
+---
+
+## 2026-09-17 — Phase 0.4: Vercel deploy
+**Did:** the user imported GitHub `ShabdCoach` into Vercel (Hobby, default Next.js settings, no env vars yet). Production domain: **https://shabd-coach.vercel.app**
+**Verified:** `curl` returns 200, and the page is public (no Vercel Authentication wall); it serves the default Next.js page.
+**Also:** filled the domain into the allowlist lines in BUILDPLAN 1.4, `agent-prompt.md` and ARCHITECTURE §2.
+**Next:** add `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` in Vercel → Settings → Environment Variables at task 1.7, then redeploy.
 
 ---
 
