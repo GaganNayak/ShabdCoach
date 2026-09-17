@@ -20,6 +20,7 @@ import {
 } from "@/lib/session";
 
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
+const GREETING_OVERRIDE = false; // flip to true once the agent allows the first-message override
 
 export default function Home() {
   return (
@@ -75,7 +76,8 @@ function App() {
       overrides: {
         agent: {
           language: LANGUAGES[language].agentCode,
-          firstMessage: LANGUAGES[language].greeting.replace("{track}", TRACKS[track].label),
+          // Needs Security → Overrides → "First message" enabled on the agent, else the session is dropped.
+          ...(GREETING_OVERRIDE && { firstMessage: LANGUAGES[language].greeting.replace("{track}", TRACKS[track].label) }),
         },
       },
       clientTools: {
