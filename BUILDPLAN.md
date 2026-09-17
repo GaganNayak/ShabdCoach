@@ -61,7 +61,9 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.7b (C)** After the upgrade, WebRTC sessions still dropped (LiveKit `connection_state_changed`). Fix: WebSocket. Verified on prod: connects, Hinglish greeting spoken.
 - [x] **4.7 (G+C)** First full live Hinglish session: flow + hang-up + summary ✅, "satisfying". Bugs: no ✗ for wrong answers; word card stuck at word 3.
 - [x] **4.8 (C)** Fix: prompt v4 (log_result mandatory for every word), tolerant word matching, card advances on "Word N of 5"; unlogged words show "–".
-- [ ] **4.9 (G)** Paste prompt v4 → **Publish** → re-run a session with 1–2 wrong answers. Check ✗ dots and that the card advances.
+- [x] **4.9 (G)** Paste prompt v4 → Publish → re-run with wrong answers. Result: ✗ dots ✅, card advances ✅, summary ✗ + tips ✅. Bug: card switched before the feedback finished.
+- [x] **4.10 (C)** Fix: the word card only advances when the coach isn't speaking (dots still update at once).
+- [ ] **4.11 (G)** Quick re-check: the card changes only after the feedback is spoken.
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)

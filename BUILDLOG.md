@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → waiting for **4.9** (user pastes prompt v4, publishes, re-tests) → Phase 5
-- **Next step (user):** paste the prompt v4 system prompt + updated `word` param description into ElevenLabs → Publish → one session on prod with 1–2 deliberately wrong answers → report ✗ dots / card advancing.
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card-timing fix deployed → waiting for **4.11** quick re-check → Phase 5
+- **Next step (user):** 4.11, one session on prod: the word card should change only after the coach finishes the feedback. Then Phase 5 (Kannada session, Android + iPhone).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,14 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.9 re-test → 4.10 card timing
+- The user pasted prompt v4 + published. Live test with wrong answers: ✗ dots ✅, card advances ✅, summary shows ✗ + tips ✅ → **the wrong-answer logging bug is fixed**.
+- New issue: the word card switched to the next word **before the coach finished speaking the feedback**. Cause: the agent emits `log_result` at the start of its reply (Wait for response = off), so results update while the feedback audio is still playing.
+- Fix (`components/SessionScreen.tsx`): a separate `shown` index for the card, synced to `currentIndex` only when `mode !== "speaking"` (the "adjust state during render" pattern, no effect). Dots and "–" still use the live index. The current-word ring follows `shown`.
+- Verified: build ✅ tsc ✅ lint ✅ tests 7/7 ✅. Not voice-tested (saves minutes) → user check 4.11.
 
 ---
 

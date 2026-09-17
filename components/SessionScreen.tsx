@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useConversationMode, useConversationStatus } from "@elevenlabs/react";
 import { Check, PhoneOff, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,11 @@ export default function SessionScreen({ track, language, words, transcript, resu
   }, [transcript]);
 
   const index = currentIndex(words, results, transcript);
-  const current = words[index];
+  // log_result arrives while the coach is still speaking feedback: dots update at once,
+  // but the word card only moves on when it's the learner's turn.
+  const [shown, setShown] = useState(0);
+  if (mode !== "speaking" && shown !== index) setShown(index);
+  const current = words[shown];
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -61,7 +65,7 @@ export default function SessionScreen({ track, language, words, transcript, resu
               title={w.word}
               className={cn(
                 "flex size-9 items-center justify-center rounded-full text-xs font-medium ring-1 ring-foreground/10",
-                i === index && "ring-2 ring-primary",
+                !r && i === shown && "ring-2 ring-primary",
                 unlogged && "bg-muted text-muted-foreground ring-0",
                 r && passed && "bg-primary text-primary-foreground ring-0",
                 r && !passed && "bg-destructive/10 text-destructive ring-0",

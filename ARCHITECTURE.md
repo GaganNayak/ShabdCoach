@@ -111,6 +111,7 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 | Word list missing/empty | Agent says the lesson did not load and stops (prompt v3); page should never start without 5 words |
 | Off-topic question | Agent refuses and returns to the current word (prompt v3 "Scope") |
 | Agent logs the same word twice | Replace the earlier entry for that word |
+| `log_result` arrives mid-feedback | Dot updates at once; the word card (`shown` index) only moves when the coach isn't speaking |
 | Agent skips `log_result` for a word | Card still advances on "Word N of 5"; the dot shows "–"; the summary shows "Not reached" for it. Prompt v4 makes the call mandatory. |
 | Unsupported / in-app browser (no WebRTC) | Advise opening in Chrome/Safari |
 | Kannada voice not fully natural | Kept as spoken Kanglish, labelled **"ಕನ್ನಡ (Beta)"** in the picker (`LANGUAGES.kannada.beta`) — user decision after test 1.6a |

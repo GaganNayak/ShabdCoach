@@ -143,3 +143,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Root cause of dropped sessions: ElevenLabs quota_exceeded (free plan 15 agent min/mo). Need a paid plan (Starter $6 = 75 min) for testing + reviewers; demo video is the backup.
 - 2026-09-17: Upgraded to ElevenLabs Starter. WebRTC sessions still dropped → switched to WebSocket; voice now works on prod with natural per-language greetings.
 - 2026-09-17: First full live session worked ("satisfying"). Wrong answers weren't logged → prompt v4 (mandatory log_result) + UI fallback that advances on "Word N of 5".
+- 2026-09-17: Prompt v4 fixed wrong-answer logging (✗ dots, summary). Word card now waits for the coach to finish speaking before advancing.
