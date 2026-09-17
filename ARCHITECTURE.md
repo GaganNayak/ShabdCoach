@@ -5,7 +5,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 ## 1. Decisions
 | Area | Choice | Why |
 |---|---|---|
-| Voice agent | **ElevenLabs Agents** (STT + LLM + TTS in one) | Low latency, Hindi + Kannada voices, no backend. Apna uses ElevenLabs too. |
+| Voice agent | **ElevenLabs Agents** (STT + LLM + TTS in one), TTS model **V3 Conversational** | Low latency, Hindi + Kannada voices, no backend. Apna uses ElevenLabs too. |
 | Client ↔ agent | **`@elevenlabs/react` SDK** (`useConversation`) | We need a custom UI: live transcript, scoreboard, summary, and a language switch for each session |
 | Frontend | **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4**, on the Node.js runtime | The user's choice. Deploys natively to Vercel. |
 | UI components | **shadcn/ui** (style `radix-nova`, base color neutral, Radix primitives, lucide icons) | The user's choice. Components are copied into `components/ui/` and fully editable. |
@@ -117,6 +117,6 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 - Upgrade path if abused: make the agent private → add `app/api/token/route.ts` (Node) that uses the API key to fetch a conversation token → pass `conversationToken` to `startSession`.
 
 ## 8. Unverified / to check during build
-- Kannada support on the agent's chosen TTS model (only Eleven v3 lists it — CONTEXT §2.5).
+- Kannada: supported by **V3 Conversational** (74 languages), not Flash v2.5. Still to confirm by ear in the dashboard test. Fallback: Kannada meanings as on-screen text, with the agent speaking Hinglish/English.
 - Exact `@elevenlabs/react` API in the installed version: `useConversation` options vs any provider requirement. Check the package README when installing.
 - Free-tier agent minutes (not verified — CONTEXT §2.4).

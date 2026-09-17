@@ -91,7 +91,8 @@ For every param: **Value Type = LLM Prompt** (the agent's AI fills the value fro
 
 ## Dashboard settings to check
 - [ ] Agent language: English, with Hindi + Kannada added as additional languages. **Verify the Kannada voice works** (§2.5 open item).
-- [ ] Voice: a warm Indian-English voice that also handles Hindi and Kannada.
+- [ ] **TTS model: V3 Conversational** (required for Kannada; Flash v2.5 has no Kannada). Avoid Professional Voice Clones (v3 doesn't preserve them).
+- [ ] Voice: a warm Indian-accent voice (no Kannada-native voice needed; the model supplies the language). Verify Kannada sounds natural in the test.
 - [ ] LLM: a fast model (latency matters more than depth here).
 - [ ] Security: public agent (auth off), allowlist = `localhost:3000` + `shabd-coach.vercel.app` (exact hostname match; port included).
 - [ ] Security → Overrides: enable **language** and **first message** only (the page sets en/hi/kn per session).

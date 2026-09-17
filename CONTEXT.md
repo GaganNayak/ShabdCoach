@@ -34,7 +34,7 @@
 | Language | ElevenLabs TTS (voice out) | STT (voice in) | Sarvam AI (alt) |
 |---|---|---|---|
 | Hindi/Hinglish | ✅ v3, Multilingual v2, Flash v2.5 [S10] | ✅ | ✅ |
-| Kannada | ✅ **Eleven v3** listed [S10]; not in the Multilingual v2 list, so unclear for low-latency agent models | ✅ ElevenLabs STT page [S11] | ✅ TTS + STT [S12] |
+| Kannada | ✅ **Eleven v3 / V3 Conversational** (agent-ready, low latency) [S13]; ❌ not in Flash v2.5 | ✅ ElevenLabs STT page [S11] | ✅ TTS + STT [S12] |
 | Konkani | ❌ not listed [S10] | ❓ unverified on ElevenLabs | STT only (Saaras), no TTS [S12 — LOW CONFIDENCE, secondary search summary] |
 | Tulu | ❌ not listed [S10] | ❌ none found | ❌ none found |
 - **Implication:** Kannada can be spoken if the agent's voice model supports it (to check in the dashboard). Tulu and Konkani **cannot be spoken** with the tools we found.
@@ -53,6 +53,7 @@
 - S10 https://elevenlabs.io/docs/overview/models
 - S11 https://elevenlabs.io/speech-to-text/kannada
 - S12 https://docs.sarvam.ai/api/getting-started/models/bulbul
+- S13 https://elevenlabs.io/docs/help-center/other/what-languages-do-you-support , https://elevenlabs.io/docs/eleven-agents/customization/voice/expressive-mode
 
 ## 3. Requirements (draft v1)
 
@@ -132,3 +133,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Pushed to GitHub (GaganNayak/ShabdCoach). Phase 2.1–2.3 done (lib/words.ts, lib/session.ts, tests).
 - 2026-09-17: Deployed to Vercel → https://shabd-coach.vercel.app (auto-deploys from GitHub main).
 - 2026-09-17: Docs check for Phase 1: agents support v3 Conversational + Flash v2.5 languages; additional languages switch the agent to a multilingual model; allowlist is exact-host (use `localhost:3000`). Kannada still to confirm in the dashboard dropdown.
+- 2026-09-17: User found no Kannada voice in the Voice Library. Resolution: language support comes from the TTS model → use **V3 Conversational** (supports Kannada) with an Indian-accent voice. Fallback if it sounds bad: Kannada as on-screen text.
