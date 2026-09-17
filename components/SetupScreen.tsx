@@ -1,4 +1,4 @@
-import { BriefcaseBusiness, Building2, Headset, Mic, TrendingUp } from "lucide-react";
+import { BriefcaseBusiness, Building2, CircleAlert, Headset, Mic, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -12,12 +12,13 @@ const STEPS = ["Learn", "Recall", "Use it", "Review"];
 type Props = {
   track: TrackId;
   language: LanguageId;
+  error: string | null;
   onTrack: (t: TrackId) => void;
   onLanguage: (l: LanguageId) => void;
   onStart: () => void;
 };
 
-export default function SetupScreen({ track, language, onTrack, onLanguage, onStart }: Props) {
+export default function SetupScreen({ track, language, error, onTrack, onLanguage, onStart }: Props) {
   return (
     <div className="flex flex-1 flex-col gap-6">
       <header className="space-y-2 pt-2">
@@ -79,6 +80,11 @@ export default function SetupScreen({ track, language, onTrack, onLanguage, onSt
       </section>
 
       <div className="mt-auto space-y-2 pb-2">
+        {error && (
+          <p role="alert" className="flex gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            <CircleAlert className="mt-0.5 size-4 shrink-0" /> {error}
+          </p>
+        )}
         <Button size="lg" className="h-12 w-full text-base" onClick={onStart}>
           <Mic /> Start speaking
         </Button>

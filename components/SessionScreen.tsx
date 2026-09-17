@@ -1,32 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useConversationMode, useConversationStatus } from "@elevenlabs/react";
 import { Check, PhoneOff, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TRACKS } from "@/lib/words";
-import { LANGUAGES, upsertResult, type LanguageId, type TrackId, type TranscriptLine, type Word, type WordResult } from "@/lib/session";
+import { LANGUAGES, type LanguageId, type TrackId, type TranscriptLine, type Word, type WordResult } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 type Props = {
   track: TrackId;
   language: LanguageId;
   words: Word[];
-  onFinish: (results: WordResult[], summary: string | null) => void;
+  transcript: TranscriptLine[];
+  results: WordResult[];
+  onEnd: () => void;
 };
 
 type Mode = "connecting" | "listening" | "speaking";
 
-export default function SessionScreen({ track, language, words, onFinish }: Props) {
+export default function SessionScreen({ track, language, words, transcript, results, onEnd }: Props) {
   const lang = LANGUAGES[language];
-  // ponytail: mock state for Phase 3; Phase 4 replaces it with useConversation (transcript, mode, clientTools).
-  const [mode, setMode] = useState<Mode>("speaking");
-  const [transcript, setTranscript] = useState<TranscriptLine[]>([
-    { role: "agent", text: `Hi! I'm Shabd Coach. Today we'll learn 5 useful English words for ${TRACKS[track].label} jobs. Ready?` },
-  ]);
-  const [results, setResults] = useState<WordResult[]>([]);
+  const { status } = useConversationStatus();
+  const { mode: agentMode } = useConversationMode();
+  const mode: Mode = status === "connected" ? agentMode : "connecting";
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -36,18 +36,6 @@ export default function SessionScreen({ track, language, words, onFinish }: Prop
   const resultFor = (w: Word) => results.find((r) => r.word.trim().toLowerCase() === w.word.toLowerCase());
   const current = words.find((w) => !resultFor(w));
 
-  function simulateWord() {
-    if (!current) return onFinish(results, "Great effort today! Come back tomorrow for 5 more words.");
-    const ok = Math.random() > 0.3;
-    setTranscript((t) => [
-      ...t,
-      { role: "agent", text: `Word ${results.length + 1} of 5: ${current.word}. ${current.example}` },
-      { role: "user", text: ok ? `I ${current.word} it every day.` : "Umm, I'm not sure." },
-    ]);
-    setResults((r) => upsertResult(r, { word: current.word, recalled: ok, used_correctly: ok, tip: ok ? "Nice sentence!" : "Try using it about your own work." }));
-    setMode((m) => (m === "speaking" ? "listening" : "speaking"));
-  }
-
   return (
     <div className="flex flex-1 flex-col gap-4">
       <header className="flex items-center justify-between">
@@ -55,7 +43,7 @@ export default function SessionScreen({ track, language, words, onFinish }: Prop
           <p className="text-sm font-medium text-primary">{TRACKS[track].label}</p>
           <p className="text-xs text-muted-foreground">Explaining in {lang.native}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => onFinish(results, null)}>
+        <Button variant="outline" size="sm" onClick={onEnd}>
           <PhoneOff /> End
         </Button>
       </header>
@@ -84,7 +72,7 @@ export default function SessionScreen({ track, language, words, onFinish }: Prop
         })}
       </ol>
 
-      {current && (
+      {current ? (
         <Card size="sm">
           <CardContent className="space-y-1">
             <div className="flex items-baseline justify-between gap-2">
@@ -96,10 +84,15 @@ export default function SessionScreen({ track, language, words, onFinish }: Prop
             <p className="pt-1 text-sm italic text-muted-foreground">“{current.example}”</p>
           </CardContent>
         </Card>
+      ) : (
+        <Card size="sm">
+          <CardContent className="text-center text-sm">All 5 words done. Revision quiz time!</CardContent>
+        </Card>
       )}
 
       <ScrollArea className="h-48 rounded-xl bg-card ring-1 ring-foreground/10">
         <div className="space-y-2 p-3" aria-live="polite">
+          {transcript.length === 0 && <p className="text-center text-sm text-muted-foreground">Say hello when the coach greets you 👋</p>}
           {transcript.map((line, i) => (
             <p
               key={i}
@@ -114,10 +107,6 @@ export default function SessionScreen({ track, language, words, onFinish }: Prop
           <div ref={bottomRef} />
         </div>
       </ScrollArea>
-
-      <Button variant="secondary" className="mt-auto" onClick={simulateWord}>
-        {current ? "Simulate next word (mock)" : "Simulate end of session (mock)"}
-      </Button>
     </div>
   );
 }
