@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TRACKS } from "@/lib/words";
-import { LANGUAGES, type LanguageId, type TrackId, type TranscriptLine, type Word, type WordResult } from "@/lib/session";
+import { LANGUAGES, currentIndex, findResult, type LanguageId, type TrackId, type TranscriptLine, type Word, type WordResult } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -33,8 +33,8 @@ export default function SessionScreen({ track, language, words, transcript, resu
     bottomRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [transcript]);
 
-  const resultFor = (w: Word) => results.find((r) => r.word.trim().toLowerCase() === w.word.toLowerCase());
-  const current = words.find((w) => !resultFor(w));
+  const index = currentIndex(words, results, transcript);
+  const current = words[index];
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -52,21 +52,23 @@ export default function SessionScreen({ track, language, words, transcript, resu
 
       <ol className="flex justify-center gap-2" aria-label="Progress">
         {words.map((w, i) => {
-          const r = resultFor(w);
+          const r = findResult(results, w);
           const passed = r && (r.recalled || r.used_correctly);
+          const unlogged = !r && i < index; // coach moved on without logging a result
           return (
             <li
               key={w.word}
               title={w.word}
               className={cn(
                 "flex size-9 items-center justify-center rounded-full text-xs font-medium ring-1 ring-foreground/10",
-                !r && w === current && "ring-2 ring-primary",
+                i === index && "ring-2 ring-primary",
+                unlogged && "bg-muted text-muted-foreground ring-0",
                 r && passed && "bg-primary text-primary-foreground ring-0",
                 r && !passed && "bg-destructive/10 text-destructive ring-0",
               )}
             >
-              {r ? passed ? <Check className="size-4" /> : <X className="size-4" /> : i + 1}
-              <span className="sr-only">{w.word}{r ? (passed ? " learned" : " needs practice") : ""}</span>
+              {r ? passed ? <Check className="size-4" /> : <X className="size-4" /> : unlogged ? "–" : i + 1}
+              <span className="sr-only">{w.word}{r ? (passed ? " learned" : " needs practice") : unlogged ? " done" : ""}</span>
             </li>
           );
         })}

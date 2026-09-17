@@ -45,8 +45,23 @@ export function buildWordList(words: Word[], lang: LanguageId): string {
     .join(" | ");
 }
 
+// The agent may send "Flexible." or " follow-up"; compare letters only.
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
+export const findResult = (results: WordResult[], w: Word) => results.find((r) => norm(r.word) === norm(w.word));
+
 // Agent may call log_result twice for a word; the latest call wins.
 export function upsertResult(results: WordResult[], r: WordResult): WordResult[] {
-  const key = r.word.trim().toLowerCase();
-  return [...results.filter((x) => x.word.trim().toLowerCase() !== key), r];
+  return [...results.filter((x) => norm(x.word) !== norm(r.word)), r];
+}
+
+// Index of the word being taught: after the last logged word, or the latest "Word N of 5" the coach said
+// (fallback for when the agent skips log_result). words.length = all done.
+export function currentIndex(words: Word[], results: WordResult[], transcript: TranscriptLine[]): number {
+  let i = 0;
+  words.forEach((w, idx) => findResult(results, w) && (i = Math.max(i, idx + 1)));
+  for (const line of transcript) {
+    const m = line.role === "agent" && line.text.match(/\b(\d)\s*(?:of|\/|में से)\s*\d\b/i);
+    if (m) i = Math.max(i, Number(m[1]) - 1);
+  }
+  return Math.min(i, words.length);
 }

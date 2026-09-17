@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · **Phase 4 code done & connecting on prod** → waiting for the user's full live 5-word session (4.7) → Phase 5
-- **Next step (user):** on https://shabd-coach.vercel.app (Chrome), do one full Hinglish session; report whether the dots fill, the summary appears, and anything odd.
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → waiting for **4.9** (user pastes prompt v4, publishes, re-tests) → Phase 5
+- **Next step (user):** paste the prompt v4 system prompt + updated `word` param description into ElevenLabs → Publish → one session on prod with 1–2 deliberately wrong answers → report ✗ dots / card advancing.
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,25 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.7 live test → 4.8 fixes
+**User's live Hinglish session (prod, WebSocket):** end-to-end flow worked, auto hang-up + summary ✅, experience "satisfying".
+**Bugs:**
+1. ✓ dots appeared for correct answers, but **no ✗ for wrong answers**.
+2. After a deliberately wrong answer, the **word card stayed on word 3** (the conversation itself continued to the end).
+**Diagnosis:** the page only advances on `log_result`, so no ✗ + stuck card = no matching `log_result` for wrong answers. Likely the agent skipped the call when the answer was wrong (the prompt didn't say it's mandatory), and/or the logged word text didn't match exactly. Not verified in ElevenLabs call history.
+**Fixes**
+- `lib/session.ts`:
+  - `findResult` / `upsertResult` compare letters only (case, spaces, punctuation ignored).
+  - New `currentIndex(words, results, transcript)`: max of (last logged word + 1) and the latest agent line matching `\b(\d) (of|/|में से) \d\b` → 0-based index.
+  - Tests: 7 (+ punctuation match, index from logs, index from "Word 4 of 5", Hindi "में से", ignores user lines and "15 of 20").
+- `SessionScreen`: uses `currentIndex`; words passed without a log show a grey "–" dot; the current word ring follows the index.
+- `SummaryScreen`: uses `findResult`.
+- `agent-prompt.md` **prompt v4**: lesson step 5 = ALWAYS call `log_result` for every word incl. wrong/skipped (false); Tools section: exactly once per word, 5 calls total; `word` param description: exact list text, no punctuation. **The user must paste + publish.**
+
+**Verified:** build ✅ · tsc ✅ · lint ✅ · tests 7/7 ✅. UI change not voice-tested (saves minutes); covered by the `currentIndex` tests.
 
 ---
 

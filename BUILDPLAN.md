@@ -59,7 +59,10 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.6 (C)** End button + disconnect → summary; disconnect before any message → back to setup with an error.
 - [x] **4.7a (G)** Add agent minutes (upgraded to Starter). Cause of dropped sessions = `quota_exceeded` (free plan: 15 min/mo). Recommended: Starter ($6, 75 min). Set max call duration to ~6 min.
 - [x] **4.7b (C)** After the upgrade, WebRTC sessions still dropped (LiveKit `connection_state_changed`). Fix: WebSocket. Verified on prod: connects, Hinglish greeting spoken.
-- [ ] **4.7 (G+C)** One full live session on the prod URL (you on Chrome; AI reads the result from you, no headless runs, to save minutes).
+- [x] **4.7 (G+C)** First full live Hinglish session: flow + hang-up + summary ✅, "satisfying". Bugs: no ✗ for wrong answers; word card stuck at word 3.
+- [x] **4.8 (C)** Fix: prompt v4 (log_result mandatory for every word), tolerant word matching, card advances on "Word N of 5"; unlogged words show "–".
+- [ ] **4.9 (G)** Paste prompt v4 → **Publish** → re-run a session with 1–2 wrong answers. Check ✗ dots and that the card advances.
+- [ ] ~~4.7~~ One full live session on the prod URL (you on Chrome; AI reads the result from you, no headless runs, to save minutes).
   Done when: a full live 5-word session works on the live URL and lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)

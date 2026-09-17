@@ -2,7 +2,7 @@ import { Check, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import type { Word, WordResult } from "@/lib/session";
+import { findResult, type Word, type WordResult } from "@/lib/session";
 
 type Props = {
   words: Word[];
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function SummaryScreen({ words, results, summary, onAgain, onChange }: Props) {
-  const find = (w: Word) => results.find((r) => r.word.trim().toLowerCase() === w.word.toLowerCase());
+  const find = (w: Word) => findResult(results, w);
   const learned = words.filter((w) => {
     const r = find(w);
     return r && (r.recalled || r.used_correctly);
