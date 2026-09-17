@@ -90,7 +90,7 @@ type Phase = "setup" | "session" | "summary";
 | kannada | `kn` | Kannada | `kn` (+ `en`) |
 
 ### 5.3 Dynamic variables (page → agent)
-`track` (label), `language` (label), `word_list` (5 lines: `1. word — meaning — e.g. "example"`).
+`track` (label), `language` (label), `word_list` (one line, items joined by ` | `: `1. word — meaning (Lang: local meaning) — e.g. "example" | 2. …`).
 
 ### 5.4 Client tools (agent → page)
 | Tool | Params | Page action | Returns |
@@ -107,9 +107,11 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 | No agent ID / connect error | `onError` → toast + back to setup |
 | User taps End early | `endSession()` → summary with partial results |
 | Unexpected disconnect | Same as End early |
+| Word list missing/empty | Agent says the lesson did not load and stops (prompt v3); page should never start without 5 words |
+| Off-topic question | Agent refuses and returns to the current word (prompt v3 "Scope") |
 | Agent logs the same word twice | Replace the earlier entry for that word |
 | Unsupported / in-app browser (no WebRTC) | Advise opening in Chrome/Safari |
-| Kannada voice unsupported by model | Hide Kannada or fall back to English; decided after the dashboard test |
+| Kannada voice not fully natural | Kept as spoken Kanglish, labelled **"ಕನ್ನಡ (Beta)"** in the picker (`LANGUAGES.kannada.beta`) — user decision after test 1.6a |
 
 ## 7. Security & cost
 - The agent ID is public by design (`NEXT_PUBLIC_`). Protection comes from the **allowlist** (`shabd-coach.vercel.app` only; the dashboard rejects `localhost`, so it's cleared temporarily during local dev), **max duration ~8 min** and a **usage cap** in the dashboard.

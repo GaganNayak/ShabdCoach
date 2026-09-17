@@ -8,13 +8,31 @@ Running log of what was built, for handing off to any AI tool or developer.
 ## ▶ Current state (keep this block updated)
 - **Phase:** 1 in progress (1.6a re-test), Phase 2 done (except 2.4), Phase 3 next
 - **Done:** Phase 0 complete (0.1–0.5), 2.1, 2.2, 2.3
-- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: 1.6a re-test of prompt v2, 1.6b publish, 1.7 agent ID (ElevenLabs agent), 2.4 (Kannada review)
+- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: 1.6c re-test of prompt v3, 1.6b publish, 1.7 agent ID (ElevenLabs agent), 2.4 (Kannada review)
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`)
 - **Live:** https://shabd-coach.vercel.app (Vercel, auto-deploys on push to `main`)
 - **Test:** `npm test`
 - **Blockers:** none
 - **Run locally:** `npm install` → `npm run dev` → http://localhost:3000
 - **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (not needed until Phase 4)
+
+---
+
+## 2026-09-17 — Phase 1.6a re-test → prompt v3
+**Re-test of v2 (user):**
+- Hinglish: said "Word N of 5" and kept order ✅, but **the words were not from the list**. Diagnosis: `{{word_list}}` most likely didn't reach the agent (multi-line paste into the dashboard's test value field), so the model invented 5 words. LLM = a Flash/mini model.
+- Off-topic: the user asked "Who is the president of India?" and the agent answered. The user wants strict scope.
+- Kannada (Kanglish): pronunciation better, wording "better but not satisfying". **User decision: keep spoken Kannada, label it Beta.**
+
+**Changes**
+- `lib/session.ts`: `buildWordList` now joins with ` | ` (single line). Added `beta: true` on `LANGUAGES.kannada`. Test asserts single line. `npm test` 4/4 ✅, `tsc` ✅.
+- `agent-prompt.md` → **prompt v3**:
+  - New guard: if the word list is empty or a placeholder → "today's lesson did not load", no invented words.
+  - New "Scope (strict)" section: refuse all non-lesson questions even if known; lesson-word questions stay in scope. Removed the old "answer in one sentence" rule.
+  - Test values regenerated as one line.
+- ARCHITECTURE §5.3 (word_list format) and §6 (Kannada Beta, empty list, off-topic) updated.
+
+**Next:** 1.6c — the user pastes prompt v3 and re-tests Hinglish with the one-line word_list plus an off-topic question. If words still don't match the list → try a larger LLM, or check the dynamic variable defaults in the agent settings.
 
 ---
 

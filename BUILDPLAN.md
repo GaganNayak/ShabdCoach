@@ -26,7 +26,8 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **1.5 (G+C)** Test in the dashboard: 1 session each in English, Hinglish, Kannada. Note issues (too long turns, off-list words, Kannada voice quality).
   Done when: all 3 languages complete a word loop; the Kannada verdict is recorded in CONTEXT.md.
 - [x] **1.6 (C)** Tune `agent-prompt.md` from the test notes (prompt v2). 
-- [ ] **1.6a (G)** Re-paste prompt v2 → re-test: one Hinglish run (word order) + one Kannada run (Kanglish). If Kannada is still unnatural → text-card fallback.
+- [x] **1.6a (G)** Re-paste prompt v2 → re-test: one Hinglish run (word order) + one Kannada run (Kanglish). Result: order OK but invented words (list likely not received); answered off-topic; Kannada better, not great → Beta.
+- [ ] **1.6c (G)** Paste prompt v3 → re-test Hinglish with the **one-line** word_list; ask "Who is the president of India?" mid-lesson (should refuse).
 - [ ] **1.6b (G)** **Publish** the agent (dashboard edits stay as a draft until published; the page uses the live version). Re-publish after every prompt change.
 - [ ] **1.7 (G)** Share the agent ID → `.env.local` + Vercel env var `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`.
 
@@ -42,7 +43,7 @@ Architecture reference: `ARCHITECTURE.md`.
 ## Phase 3 — UI screens with mock data (~2 h)
 > Use shadcn/ui components. Likely set: `card`, `button`, `badge`, `toggle-group` (language), `scroll-area` (transcript), `progress`, `sonner` (toasts). Add them only when a screen needs them.
 - [ ] **3.1 (C)** `app/page.tsx`: phase state machine (setup → session → summary) + shared state.
-- [ ] **3.2 (C)** `SetupScreen`: 4 track cards, language picker (English / Hinglish / ಕನ್ನಡ), Start button, one-line explainer.
+- [ ] **3.2 (C)** `SetupScreen`: 4 track cards, language picker (English / Hinglish / ಕನ್ನಡ **Beta** badge), Start button, one-line explainer.
 - [ ] **3.3 (C)** `SessionScreen` (mock): speaking/listening orb, transcript list, scoreboard of 5 words (pending / ✅ / ❌), End button.
 - [ ] **3.4 (C)** `SummaryScreen`: score, per-word tips, Practice again.
 - [ ] **3.5 (C)** Mobile-first styling; check at 375px width.

@@ -23,6 +23,7 @@ test("buildWordList uses the chosen language's meaning", () => {
   assert.equal(buildWordList([w], "english"), `1. ${w.word} — ${w.en} — e.g. "${w.example}"`);
   assert.ok(buildWordList([w], "hinglish").includes(`(Hinglish: ${w.hi})`));
   assert.ok(buildWordList([w], "kannada").includes(`(Kannada: ${w.kn})`));
+  assert.ok(!buildWordList(TRACKS.support.words.slice(0, 5), "english").includes("\n"), "single line");
 });
 
 test("upsertResult replaces a repeated word", () => {

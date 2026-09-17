@@ -9,8 +9,8 @@ export type Phase = "setup" | "session" | "summary";
 export const LANGUAGES = {
   english: { label: "English", native: "English", agentCode: "en", field: "en" },
   hinglish: { label: "Hinglish", native: "Hinglish", agentCode: "hi", field: "hi" },
-  kannada: { label: "Kannada", native: "ಕನ್ನಡ", agentCode: "kn", field: "kn" },
-} as const satisfies Record<LanguageId, { label: string; native: string; agentCode: string; field: keyof Word }>;
+  kannada: { label: "Kannada", native: "ಕನ್ನಡ", agentCode: "kn", field: "kn", beta: true }, // voice quality not yet natural (test 1.6a)
+} as const satisfies Record<LanguageId, { label: string; native: string; agentCode: string; field: keyof Word; beta?: boolean }>;
 
 export const WORDS_PER_SESSION = 5;
 
@@ -23,7 +23,7 @@ export function pickWords(track: TrackId, n = WORDS_PER_SESSION): Word[] {
   return words.slice(0, n);
 }
 
-// One line per word: `1. resolve — to solve a problem (Hinglish: problem ko suljhana) — e.g. "..."`
+// Single line, so it survives single-line dashboard test inputs: `1. resolve — to solve a problem (Hinglish: ...) — e.g. "..." | 2. ...`
 export function buildWordList(words: Word[], lang: LanguageId): string {
   const { field, label } = LANGUAGES[lang];
   return words
@@ -31,7 +31,7 @@ export function buildWordList(words: Word[], lang: LanguageId): string {
       const local = field === "en" ? "" : ` (${label}: ${w[field]})`;
       return `${i + 1}. ${w.word} — ${w.en}${local} — e.g. "${w.example}"`;
     })
-    .join("\n");
+    .join(" | ");
 }
 
 // Agent may call log_result twice for a word; the latest call wins.
