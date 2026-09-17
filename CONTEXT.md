@@ -137,3 +137,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Allowlist can't hold localhost → production domain only; clear temporarily for local testing.
 - 2026-09-17: Agent test 1.5: all good except off-list words (all langs) and unnatural Kannada. Prompt v2: strict order + Kanglish in Kannada script. Fallback if Kannada still poor: on-screen Kannada card.
 - 2026-09-17: Re-test: agent invented words (list not received), answered off-topic. Prompt v3: one-line word_list, missing-list guard, strict scope. Kannada kept as voice, labelled Beta (user decision).
+- 2026-09-17: Prompt v3 passed the dashboard test. Agent ID received (`agent_7301m2q5ec0xf7m81qswyy0kdbpe`), in .env.local. Phase 1 done.

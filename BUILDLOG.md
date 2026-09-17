@@ -8,13 +8,21 @@ Running log of what was built, for handing off to any AI tool or developer.
 ## ▶ Current state (keep this block updated)
 - **Phase:** 1 in progress (1.6a re-test), Phase 2 done (except 2.4), Phase 3 next
 - **Done:** Phase 0 complete (0.1–0.5), 2.1, 2.2, 2.3
-- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: 1.6c re-test of prompt v3, 1.6b publish, 1.7 agent ID (ElevenLabs agent), 2.4 (Kannada review)
+- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: Vercel env var (1.7), Kannada review (2.4) (ElevenLabs agent), 2.4 (Kannada review)
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`)
 - **Live:** https://shabd-coach.vercel.app (Vercel, auto-deploys on push to `main`)
 - **Test:** `npm test`
 - **Blockers:** none
 - **Run locally:** `npm install` → `npm run dev` → http://localhost:3000
-- **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (not needed until Phase 4)
+- **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID=agent_7301m2q5ec0xf7m81qswyy0kdbpe`
+
+---
+
+## 2026-09-17 — Phase 1.6c passed + 1.7 agent ID
+- The user re-tested prompt v3: "everything is right" (words from the list, in order; off-topic refused).
+- Agent ID: `agent_7301m2q5ec0xf7m81qswyy0kdbpe` (public by design, ARCHITECTURE §7). Written to `.env.local` (git-ignored, confirmed with `git check-ignore`).
+- **Pending (user):** Vercel → Settings → Environment Variables → `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` for all environments. Confirm the agent is **published** (1.6b).
+- Phase 1 is effectively complete. Remaining user tasks: 2.4 (Kannada word review), 4.0 (clear allowlist during local voice testing).
 
 ---
 
