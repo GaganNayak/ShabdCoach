@@ -50,6 +50,11 @@ export function buildWordList(words: Word[], lang: LanguageId): string {
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z]/g, "");
 export const findResult = (results: WordResult[], w: Word) => results.find((r) => norm(r.word) === norm(w.word));
 
+// learned = meaning AND own sentence right; partial = one of the two; missed = neither.
+export type WordStatus = "learned" | "partial" | "missed";
+export const wordStatus = (r: WordResult): WordStatus =>
+  r.recalled && r.used_correctly ? "learned" : r.recalled || r.used_correctly ? "partial" : "missed";
+
 // Agent may call log_result twice for a word; the latest call wins.
 export function upsertResult(results: WordResult[], r: WordResult): WordResult[] {
   return [...results.filter((x) => norm(x.word) !== norm(r.word)), r];

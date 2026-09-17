@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TRACKS } from "@/lib/words";
-import { LANGUAGES, currentIndex, findResult, type LanguageId, type TrackId, type TranscriptLine, type Word, type WordResult } from "@/lib/session";
+import { LANGUAGES, currentIndex, findResult, wordStatus, type LanguageId, type TrackId, type TranscriptLine, type Word, type WordResult, type WordStatus } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -56,7 +56,7 @@ export default function SessionScreen({ track, language, words, transcript, resu
       <ol className="flex justify-center gap-2" aria-label="Progress">
         {words.map((w, i) => {
           const r = findResult(results, w);
-          const passed = r && (r.recalled || r.used_correctly);
+          const status = r && wordStatus(r);
           const unlogged = !r && i < index; // coach moved on without logging a result
           return (
             <li
@@ -66,12 +66,13 @@ export default function SessionScreen({ track, language, words, transcript, resu
                 "flex size-9 items-center justify-center rounded-full text-xs font-medium ring-1 ring-foreground/10",
                 i === index && "ring-2 ring-primary ring-offset-2",
                 unlogged && "bg-muted text-muted-foreground ring-0",
-                r && passed && "bg-primary text-primary-foreground ring-0",
-                r && !passed && "bg-destructive/10 text-destructive ring-0",
+                status === "learned" && "bg-primary text-primary-foreground ring-0",
+                status === "partial" && "bg-amber-100 text-amber-700 ring-0",
+                status === "missed" && "bg-destructive/10 text-destructive ring-0",
               )}
             >
-              {r ? passed ? <Check className="size-4" /> : <X className="size-4" /> : unlogged ? "–" : i + 1}
-              <span className="sr-only">{w.word}{r ? (passed ? " learned" : " needs practice") : unlogged ? " done" : ""}</span>
+              {status === "learned" ? <Check className="size-4" /> : status === "partial" ? "½" : status === "missed" ? <X className="size-4" /> : unlogged ? "–" : i + 1}
+              <span className="sr-only">{w.word}{status ? ` ${STATUS_LABEL[status]}` : unlogged ? " done" : ""}</span>
             </li>
           );
         })}
@@ -82,15 +83,7 @@ export default function SessionScreen({ track, language, words, transcript, resu
           <CardContent className="space-y-1">
             <div className="flex items-baseline justify-between gap-2">
               <p className="text-xl font-semibold">{current.word}</p>
-              {currentResult ? (
-                currentResult.recalled || currentResult.used_correctly ? (
-                  <Badge>Learned ✓</Badge>
-                ) : (
-                  <Badge variant="destructive">Keep practising</Badge>
-                )
-              ) : (
-                <Badge variant="secondary">Now learning</Badge>
-              )}
+              <StatusBadge status={currentResult ? wordStatus(currentResult) : null} />
             </div>
             <p className="text-sm">{current.en}</p>
             {lang.field !== "en" && <p className="text-sm text-muted-foreground">{current[lang.field]}</p>}
@@ -123,6 +116,15 @@ export default function SessionScreen({ track, language, words, transcript, resu
       </ScrollArea>
     </div>
   );
+}
+
+const STATUS_LABEL = { learned: "Learned ✓", partial: "Almost there", missed: "Keep practising" } as const;
+
+export function StatusBadge({ status }: { status: WordStatus | null }) {
+  if (!status) return <Badge variant="secondary">Now learning</Badge>;
+  if (status === "learned") return <Badge>{STATUS_LABEL.learned}</Badge>;
+  if (status === "partial") return <Badge className="bg-amber-100 text-amber-700">{STATUS_LABEL.partial}</Badge>;
+  return <Badge variant="destructive">{STATUS_LABEL.missed}</Badge>;
 }
 
 function Orb({ mode }: { mode: Mode }) {

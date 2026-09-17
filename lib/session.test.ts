@@ -2,7 +2,7 @@
 import { mock, test } from "node:test";
 import assert from "node:assert/strict";
 import { TRACKS } from "./words.ts";
-import { LANGUAGES, buildWordList, cleanSpeech, createCueTracker, currentIndex, findResult, pcmMs, pickWords, upsertResult } from "./session.ts";
+import { LANGUAGES, wordStatus, buildWordList, cleanSpeech, createCueTracker, currentIndex, findResult, pcmMs, pickWords, upsertResult } from "./session.ts";
 
 test("word bank: 10 complete words per track", () => {
   for (const [id, t] of Object.entries(TRACKS)) {
@@ -35,6 +35,14 @@ test("upsertResult replaces a repeated word", () => {
   const b = { word: "Refund ", recalled: true, used_correctly: true, tip: "b" };
   assert.deepEqual(upsertResult([a], b), [b]);
   assert.deepEqual(upsertResult([a], { ...b, word: "Refund." }), [{ ...b, word: "Refund." }]);
+});
+
+test("wordStatus: both = learned, one = partial, none = missed", () => {
+  const r = (recalled: boolean, used_correctly: boolean) => ({ word: "x", recalled, used_correctly, tip: "" });
+  assert.equal(wordStatus(r(true, true)), "learned");
+  assert.equal(wordStatus(r(true, false)), "partial");
+  assert.equal(wordStatus(r(false, true)), "partial");
+  assert.equal(wordStatus(r(false, false)), "missed");
 });
 
 test("findResult ignores case and punctuation", () => {

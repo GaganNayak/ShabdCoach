@@ -2,7 +2,8 @@ import { Check, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { findResult, type Word, type WordResult } from "@/lib/session";
+import { findResult, wordStatus, type Word, type WordResult } from "@/lib/session";
+import { StatusBadge } from "@/components/SessionScreen";
 
 type Props = {
   words: Word[];
@@ -14,10 +15,9 @@ type Props = {
 
 export default function SummaryScreen({ words, results, summary, onAgain, onChange }: Props) {
   const find = (w: Word) => findResult(results, w);
-  const learned = words.filter((w) => {
-    const r = find(w);
-    return r && (r.recalled || r.used_correctly);
-  }).length;
+  const statuses = words.map((w) => find(w)).map((r) => r && wordStatus(r));
+  const learned = statuses.filter((s) => s === "learned").length;
+  const partial = statuses.filter((s) => s === "partial").length;
 
   return (
     <div className="flex flex-1 flex-col gap-5">
@@ -26,7 +26,9 @@ export default function SummaryScreen({ words, results, summary, onAgain, onChan
         <p className="text-5xl font-semibold">
           {learned}<span className="text-2xl text-muted-foreground">/{words.length}</span>
         </p>
-        <p className="text-sm text-muted-foreground">words learned</p>
+        <p className="text-sm text-muted-foreground">
+          words learned{partial > 0 && ` · ${partial} almost there`}
+        </p>
         <Progress value={(learned / words.length) * 100} aria-label="Words learned" />
         {summary && <p className="text-sm">{summary}</p>}
       </header>
@@ -38,8 +40,11 @@ export default function SummaryScreen({ words, results, summary, onAgain, onChan
             <li key={w.word}>
               <Card size="sm">
                 <CardContent className="space-y-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-semibold">{w.word}</p>
+                  <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                    <p className="flex items-center gap-2 font-semibold">
+                      {w.word}
+                      {r && <StatusBadge status={wordStatus(r)} />}
+                    </p>
                     {r ? (
                       <div className="flex gap-3 text-xs text-muted-foreground">
                         <Mark ok={r.recalled} label="Meaning" />
