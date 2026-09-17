@@ -58,6 +58,7 @@ function App() {
   const ending = useRef(false); // end_session called → hang up once the goodbye finishes
 
   async function start() {
+    const ov = flag("ov"); // "0" none · "lang" language only · "first" first message only
     setError(null);
     if (!AGENT_ID) return setError("Voice coach is not configured (missing agent ID).");
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -96,11 +97,12 @@ function App() {
         language: LANGUAGES[language].label,
         word_list: buildWordList(picked, language),
       },
-      overrides: flag("ov") === "0" ? {} : {
+      overrides: {
         agent: {
-          language: LANGUAGES[language].agentCode,
-          // Needs Security → Overrides → "First message" enabled on the agent, else the session is dropped.
-          ...(GREETING_OVERRIDE ? { firstMessage: LANGUAGES[language].greeting.replace("{track}", TRACKS[track].label) } : {}),
+          ...(ov === "0" || ov === "first" ? {} : { language: LANGUAGES[language].agentCode }),
+          ...(GREETING_OVERRIDE && ov !== "0" && ov !== "lang"
+            ? { firstMessage: LANGUAGES[language].greeting.replace("{track}", TRACKS[track].label) }
+            : {}),
         },
       },
       clientTools: {
