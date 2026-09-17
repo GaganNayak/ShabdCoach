@@ -10,6 +10,9 @@ import {
   LANGUAGES,
   buildWordList,
   cleanSpeech,
+  loadWeak,
+  nextWeak,
+  saveWeak,
   createCueTracker,
   pickWords,
   upsertResult,
@@ -57,6 +60,7 @@ function App() {
   const spoke = useRef(false); // coach spoke since the last finished turn
   const silence = useRef<ReturnType<typeof setTimeout>>(undefined);
   const heard = useRef(false); // got at least one message → a real session happened
+  const resultsRef = useRef<WordResult[]>([]); // same as `results`, readable inside callbacks
   const ending = useRef(false); // end_session called → hang up once the goodbye finishes
 
   async function start() {
@@ -74,9 +78,10 @@ function App() {
       return setError("Please allow microphone access to talk to Shabd Coach, then tap Start again.");
     }
 
-    const picked = pickWords(track);
+    const picked = pickWords(track, undefined, loadWeak());
     setWords(picked);
     setResults([]);
+    resultsRef.current = [];
     setTranscript([]);
     setSummary(null);
     heard.current = false;
@@ -109,15 +114,16 @@ function App() {
       },
       clientTools: {
         log_result: (p: Record<string, unknown>) => {
-          setResults((r) =>
-            upsertResult(r, {
+          setResults((r) => {
+            resultsRef.current = upsertResult(r, {
               word: String(p.word ?? ""),
               recalled: p.recalled === true || p.recalled === "true",
               used_correctly: p.used_correctly === true || p.used_correctly === "true",
               tip: String(p.tip ?? ""),
               turn: turns.current,
-            }),
-          );
+            });
+            return resultsRef.current;
+          });
           return "ok";
         },
         end_session: (p: Record<string, unknown>) => {
@@ -154,7 +160,12 @@ function App() {
       onDisconnect: (details) => {
         console.info("[shabd-coach] disconnected", JSON.stringify(details));
         if (!heard.current) setError((e) => e ?? "The voice coach is unavailable right now (it may have reached its usage limit). Please try again later.");
-        setPhase((p) => (p !== "session" ? p : heard.current ? "summary" : "setup"));
+        setPhase((p) => {
+          if (p !== "session") return p;
+          if (!heard.current) return "setup";
+          saveWeak(nextWeak(loadWeak(), picked, resultsRef.current)); // missed words come back next session
+          return "summary";
+        });
       },
     });
   }

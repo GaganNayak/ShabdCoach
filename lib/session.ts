@@ -26,14 +26,53 @@ export const LANGUAGES = {
 
 export const WORDS_PER_SESSION = 5;
 
-export function pickWords(track: TrackId, n = WORDS_PER_SESSION): Word[] {
-  const words = [...TRACKS[track].words];
-  for (let i = words.length - 1; i > 0; i--) {
+const shuffle = <T,>(xs: T[]) => {
+  const a = [...xs];
+  for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [words[i], words[j]] = [words[j], words[i]];
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return words.slice(0, n);
+  return a;
+};
+
+// Words missed in earlier sessions come first (spaced repetition, lite), then new ones at random.
+export function pickWords(track: TrackId, n = WORDS_PER_SESSION, weak: string[] = []): Word[] {
+  const isWeak = (w: Word) => weak.some((x) => x.trim().toLowerCase() === w.word);
+  const words = TRACKS[track].words;
+  return [...shuffle(words.filter(isWeak)), ...shuffle(words.filter((w) => !isWeak(w)))].slice(0, n);
 }
+
+const WEAK_KEY = "shabd-coach:weak";
+const WEAK_MAX = 20;
+
+// Keep words that weren't fully learned; drop the ones that were. Newest first, capped.
+export function nextWeak(prev: string[], words: Word[], results: WordResult[]): string[] {
+  const missed = words.filter((w) => {
+    const r = findResult(results, w);
+    return r && wordStatus(r) !== "learned";
+  });
+  const learned = words.filter((w) => {
+    const r = findResult(results, w);
+    return r && wordStatus(r) === "learned";
+  });
+  const keep = prev.filter((p) => !words.some((w) => w.word === p) || missed.some((w) => w.word === p));
+  return [...missed.map((w) => w.word), ...keep.filter((p) => !missed.some((w) => w.word === p) && !learned.some((w) => w.word === p))].slice(0, WEAK_MAX);
+}
+
+// localStorage can throw (private mode, blocked cookies) — never let it break a session.
+export const loadWeak = (): string[] => {
+  try {
+    const raw = JSON.parse(localStorage.getItem(WEAK_KEY) ?? "[]");
+    return Array.isArray(raw) ? raw.filter((x) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+};
+export const saveWeak = (weak: string[]) => {
+  try {
+    localStorage.setItem(WEAK_KEY, JSON.stringify(weak));
+  } catch {}
+};
 
 // Single line, so it survives single-line dashboard test inputs: `1. resolve — to solve a problem (Hinglish: ...) — e.g. "..." | 2. ...`
 export function buildWordList(words: Word[], lang: LanguageId): string {

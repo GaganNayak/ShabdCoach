@@ -2,7 +2,7 @@
 import { mock, test } from "node:test";
 import assert from "node:assert/strict";
 import { TRACKS } from "./words.ts";
-import { LANGUAGES, wordStatus, buildWordList, cleanSpeech, createCueTracker, currentIndex, findResult, pcmMs, pickWords, upsertResult } from "./session.ts";
+import { LANGUAGES, nextWeak, wordStatus, buildWordList, cleanSpeech, createCueTracker, currentIndex, findResult, pcmMs, pickWords, upsertResult } from "./session.ts";
 
 test("word bank: 10 complete words per track", () => {
   for (const [id, t] of Object.entries(TRACKS)) {
@@ -125,4 +125,20 @@ test("cue tracker fires when the audio *plays* 'Word 2 of 5', across chunks and 
   tick(5000);
   assert.deepEqual(cues, [2, 3, 5], "word 4 cue was dropped by the interruption");
   mock.timers.reset();
+});
+
+test("nextWeak keeps missed words for next time and drops learned ones", () => {
+  const ws = TRACKS.sales.words.slice(0, 3);
+  const res = (w: string, ok: boolean) => ({ word: w, recalled: ok, used_correctly: ok, tip: "" });
+  const missed = nextWeak([], ws, [res(ws[0].word, false), res(ws[1].word, true)]);
+  assert.deepEqual(missed, [ws[0].word], "missed kept, learned dropped, unlogged ignored");
+  assert.deepEqual(nextWeak([ws[1].word, "older"], ws, [res(ws[1].word, true)]), ["older"], "a learned word leaves the list");
+  assert.deepEqual(nextWeak(["older"], ws, [res(ws[2].word, false)]), [ws[2].word, "older"], "newest first");
+});
+
+test("pickWords puts weak words first", () => {
+  const weak = [TRACKS.office.words[7].word, TRACKS.office.words[9].word];
+  const picked = pickWords("office", 5, weak).map((w) => w.word);
+  assert.deepEqual(picked.slice(0, 2).sort(), [...weak].sort());
+  assert.equal(new Set(picked).size, 5);
 });
