@@ -146,3 +146,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Prompt v4 fixed wrong-answer logging (✗ dots, summary). Word card now waits for the coach to finish speaking before advancing.
 - 2026-09-17: Card timing v2: stays on the word showing ✓/✗ + tip during feedback; advances on "Word N of 5" or the learner's next reply.
 - 2026-09-17: Card timing v3: advances when the coach's speaking turn after the result ends; handles "two of five"; V3 [slow] tags hidden from transcript.
+- 2026-09-17: Prompt v5: coach pauses after feedback ("Ready for word N?") so feedback and the next word are separate turns; the card switches in between.

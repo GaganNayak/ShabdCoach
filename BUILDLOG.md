@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card-timing fix v3 deployed → waiting for **4.15** re-check → Phase 5
-- **Next step (user):** 4.15, 2 words on prod: during the feedback the card stays and shows ✓/✗ + tip; it switches to the next word when the coach stops talking (orb → "Listening"). Then Phase 5 (Kannada session, Android + iPhone).
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card timing v3 + prompt v5 → waiting for **4.17** (user pastes v5, publishes, re-checks) → Phase 5
+- **Next step (user):** 4.17, paste the prompt v5 system prompt → Publish → 2 words on prod: feedback ends with "Ready for word N?", the card switches, then the coach teaches the next word. Then Phase 5 (Kannada session, Android + iPhone).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,17 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.15 → prompt v5 (separate feedback and next-word turns)
+- The user's re-check of v3: the card now switches when the coach stops, but the coach says **feedback + "Word N of 5" + the explanation in one response**, so the card only changes after the new word has already been explained.
+- The user proposed splitting feedback and the next word. Implemented as **prompt v5** (no code change):
+  - Lesson step 5: call `log_result` *before* giving feedback.
+  - New step 6 PAUSE: end the feedback turn with "Ready for word N?" / "Ready for the revision quiz?" and wait.
+  - New step 7: on any yes (haan / ok / ಹೌದು), start "Word N of 5" (digits).
+- Resulting timeline: log → feedback turn (card shows ✓/✗ + tip) → turn ends → card switches → learner says yes → the coach teaches the word already on screen. Cost: one short learner turn per word.
+- Rejected alternative: syncing to audio via `onAudioAlignment` (precise but more code and fragile).
 
 ---
 
