@@ -62,8 +62,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.7 (G+C)** First full live Hinglish session: flow + hang-up + summary ✅, "satisfying". Bugs: no ✗ for wrong answers; word card stuck at word 3.
 - [x] **4.8 (C)** Fix: prompt v4 (log_result mandatory for every word), tolerant word matching, card advances on "Word N of 5"; unlogged words show "–".
 - [ ] **4.9 (G)** Paste prompt v4 → **Publish** → re-run a session with 1–2 wrong answers. Check ✗ dots and that the card advances.
-- [ ] ~~4.7~~ One full live session on the prod URL (you on Chrome; AI reads the result from you, no headless runs, to save minutes).
-  Done when: a full live 5-word session works on the live URL and lands on a correct summary.
+  Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)
 - [ ] **5.1 (G+C)** Live test: Hinglish and Kannada sessions end to end.
