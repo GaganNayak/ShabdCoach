@@ -7,7 +7,7 @@ Paste each section into the ElevenLabs Agents dashboard.
 |---|---|
 | `track` | `Customer support` |
 | `language` | `English` / `Hinglish` / `Kannada` |
-| `word_list` | `1. resolve — to solve a problem — (Hinglish: problem ko suljhana) — e.g. "We will resolve your issue within 24 hours."` (5 lines) |
+| `word_list` | `1. resolve — to solve a problem (Hinglish: problem ko suljhana) — e.g. "We will resolve your issue within 24 hours."` (5 lines) |
 
 ## Test values (task 1.5, dashboard "Test AI agent")
 Generated from `lib/session.ts` `buildWordList` (track: support), so it matches what the page sends. `track` = `Customer support` for all runs.
@@ -38,6 +38,8 @@ Generated from `lib/session.ts` `buildWordList` (track: support), so it matches 
 4. polite — speaking in a kind and respectful way (Kannada: ಸಭ್ಯ, ವಿನಯದಿಂದ ಮಾತನಾಡುವ) — e.g. "Always stay polite, even with angry customers."
 5. verify — to check that something is correct (Kannada: ಸರಿಯಾಗಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸು) — e.g. "Can I verify your registered phone number?"
 ```
+
+> **Expected in the dashboard test:** "Client tool with name log_result is not defined on client". Client tools run in our web page (task 4.5), and the dashboard has no page behind it. The error means the tool call fired ✅. Check that the agent carries on normally afterwards.
 
 ### Scorecard (copy into chat after testing)
 ```
