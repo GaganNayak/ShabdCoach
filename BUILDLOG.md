@@ -7,8 +7,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 
 ## ▶ Current state (keep this block updated)
 - **Phase:** 0–4 done (except 2.4 Kannada review) · **Phase 5 in progress** (iPhone Safari ✅)
-- **Next step (user):** 5.1b re-test on prod after the WebRTC switch: Kannada (smooth?) + Hinglish (card sync at "Word 2 of 5"?). Then 5.2 Android, 5.4 airplane mode + WhatsApp browser.
-- **Connection:** `connectionType: "webrtc"` (jitter buffer; WebSocket PCM underran — 5.1a). Per-language greeting override ON.
+- **Next step (user):** 5.1d set the dashboard first messages (EN/HI/KN) from `agent-prompt.md` + Publish → then 5.2 Android Chrome, 5.4 airplane mode + WhatsApp browser.
+- **Connection:** `connectionType: "websocket"` (WebRTC is dropped by this agent — 5.1c). Debug flags on the live URL: `?conn=webrtc|websocket`, `?ov=0|lang|first`. Greeting override **off** → greetings come from the dashboard language presets.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`; user git has `pull.rebase=true`, so commit before pulling)
@@ -17,6 +17,20 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** `.next/` goes stale (iCloud `* 2.*` duplicates; deleted routes still referenced in `.next/dev/types`) and breaks `tsc` → `rm -rf .next` and rebuild
+
+---
+
+## 2026-09-17 — Phase 5.1c: WebRTC unusable → WebSocket stays; Kannada stays Beta
+- After switching to WebRTC the user hit "voice coach is unavailable". Probes: WebSocket handshakes fine and the WebRTC token endpoint returns 200 → **not** quota.
+- Added live debug switches (`?conn=webrtc|websocket`, `?ov=0|lang|first`) to test variants without redeploying.
+- Findings (each a real prod session):
+  - `?conn=webrtc&ov=0` ✅ · `?conn=webrtc&ov=lang` ✅ · `?conn=webrtc&ov=first` ✅ · `?conn=webrtc` (both overrides) ❌ ×2 → looked like "both overrides break WebRTC".
+  - Minutes later: `?conn=webrtc&ov=lang` ❌ and plain WebRTC ❌ ×3, while `?conn=websocket` ✅ ×2. **So the override theory was wrong — WebRTC is simply unreliable for this agent** (drops with `reason: agent` right after the LiveKit room connects).
+- Decisions:
+  - `connectionType` back to **websocket** (works consistently). `?conn=webrtc` kept so we can retry later.
+  - `GREETING_OVERRIDE = false` (we only send the language override now). The natural per-language greetings move to the **dashboard language presets** — `agent-prompt.md` "First message" section now lists EN/HI/KN text (user task 5.1d).
+  - **Kannada:** user chose to keep the voice, labelled **Beta**, rather than the English-voice + Kannada-text fallback. Added a line under the picker: "Kannada voice is in beta and can stutter. The meaning is always shown on screen too."
+- Known limitation to state in the README: on WebSocket there's no jitter buffer, so slower-generating languages (Kannada) can stall. The fix is WebRTC, blocked by the vendor-side drops above.
 
 ---
 

@@ -77,6 +77,11 @@ export default function SetupScreen({ track, language, error, onTrack, onLanguag
           })}
         </ToggleGroup>
         <p className="text-xs text-muted-foreground">Words are always English. The coach explains them in your language.</p>
+        {language === "kannada" && (
+          <p className="text-xs text-amber-700">
+            Kannada voice is in beta and can stutter. The meaning is always shown on screen too.
+          </p>
+        )}
       </section>
 
       <div className="mt-auto space-y-2 pb-2">
