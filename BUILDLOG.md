@@ -22,6 +22,7 @@ Running log of what was built, for handing off to any AI tool or developer.
 - The user re-tested prompt v3: "everything is right" (words from the list, in order; off-topic refused).
 - Agent ID: `agent_7301m2q5ec0xf7m81qswyy0kdbpe` (public by design, ARCHITECTURE §7). Written to `.env.local` (git-ignored, confirmed with `git check-ignore`).
 - **Pending (user):** Vercel → Settings → Environment Variables → `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` for all environments. Confirm the agent is **published** (1.6b).
+- Vercel shows a warning on `NEXT_PUBLIC_` ("Remove the public framework prefix… or change the variable to Config"). Decision: **keep the prefix and set the type to Config**. The browser needs the ID to connect to the public agent; it isn't a secret (protection = allowlist + origin check + duration cap). Never put the ElevenLabs API key in a `NEXT_PUBLIC_` var.
 - Phase 1 is effectively complete. Remaining user tasks: 2.4 (Kannada word review), 4.0 (clear allowlist during local voice testing).
 
 ---
