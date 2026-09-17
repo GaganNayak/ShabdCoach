@@ -6,15 +6,39 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 2 done (except 2.4) → Phase 3 next
+- **Phase:** 1 in progress (1.6a re-test), Phase 2 done (except 2.4), Phase 3 next
 - **Done:** Phase 0 complete (0.1–0.5), 2.1, 2.2, 2.3
-- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: Phase 1 (ElevenLabs agent), 2.4 (Kannada review)
+- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: 1.6a re-test of prompt v2, 1.6b publish, 1.7 agent ID (ElevenLabs agent), 2.4 (Kannada review)
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`)
 - **Live:** https://shabd-coach.vercel.app (Vercel, auto-deploys on push to `main`)
 - **Test:** `npm test`
 - **Blockers:** none
 - **Run locally:** `npm install` → `npm run dev` → http://localhost:3000
 - **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (not needed until Phase 4)
+
+---
+
+## 2026-09-17 — Phase 1.5 results + 1.6 prompt v2
+**Test results (user, dashboard):**
+| | English | Hinglish | Kannada |
+|---|---|---|---|
+| Short turns | ✅ | ✅ | ✅ |
+| Loop order | ✅ | ✅ | ✅ |
+| Stayed on list | ❌ | ❌ | ❌ |
+| log_result fired | ✅ | ✅ | ✅ |
+| Latency | good | good | good |
+| Language quality | clear | good | **not natural** (wording + pronunciation) |
+- Off-list behaviour: **added extra words mid-lesson** and **changed order / skipped words**.
+- Tool param values weren't visible in the dashboard; we'll verify them in the page (Phase 4).
+
+**Prompt v2 changes (`agent-prompt.md`):**
+- New "Word list rules" section: exactly 5 words, strict order, a "Word N of 5" marker, never teach other vocabulary, no word 6.
+- "Tools" section: tools are silent, and the agent ignores tool errors (the dashboard shows "not defined on client").
+- Kannada → **Kanglish** (the user chose to try this before falling back): everyday Kannada + English work words, **Kannada script only** (romanized Kannada is likely to be mispronounced by TTS).
+- Revision quiz is clearly announced, so it isn't confused with reordering.
+- Dashboard tip: set a separate voice for Kannada under Additional languages.
+
+**Next:** 1.6a — the user re-pastes prompt v2 and re-tests Hinglish (order) + Kannada (Kanglish). If Kannada is still poor → text-card fallback (agent speaks simple English; UI shows the Kannada meaning).
 
 ---
 
