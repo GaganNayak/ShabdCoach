@@ -139,3 +139,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Re-test: agent invented words (list not received), answered off-topic. Prompt v3: one-line word_list, missing-list guard, strict scope. Kannada kept as voice, labelled Beta (user decision).
 - 2026-09-17: Prompt v3 passed the dashboard test. Agent ID received (`agent_7301m2q5ec0xf7m81qswyy0kdbpe`), in .env.local. Phase 1 done.
 - 2026-09-17: Vercel env var set (Config type). Phase 3 done: setup/session/summary screens with mock data; current-word card shows the meaning in the chosen language.
+- 2026-09-17: Phase 4 code done (voice wired via @elevenlabs/react provider). One prod session worked; later sessions are dropped by the agent before speaking → dashboard check needed. Testing happens on the prod URL (localhost is not allowlisted).

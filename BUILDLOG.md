@@ -6,15 +6,41 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0, 1, 2, 3 done (except 2.4 Kannada review) → **Phase 4 next: voice wiring**
-- **Next step (AI):** 4.1 — install `@elevenlabs/react`, check its API in the installed version, and replace the mock in `components/SessionScreen.tsx` (keep its props contract).
-- **Waiting on the user:** 4.0 clear the agent allowlist before local voice tests (re-add `shabd-coach.vercel.app` at 5.2) · 2.4 Kannada word review
+- **Phase:** 0–3 done (except 2.4) · **Phase 4 code done, blocked on live test (4.7)**
+- **🔴 Blocker:** on https://shabd-coach.vercel.app, sessions connect (token 200, LiveKit connected), then close with `{"reason":"agent","context":{"type":"close","reason":"agent disconnected"}}` before any message, in Hinglish and English. One earlier prod run (commit db94e76) worked: greeting + user reply arrived. Needs an ElevenLabs dashboard check (Conversations list for the failed calls' error, credits/usage, concurrency, whether the agent is published, overrides allowed).
+- **Next step:** the user checks the dashboard → AI fixes. Then 4.7 full live session, then Phase 5.
+- **Test on prod, not localhost:** localhost is dropped by the agent allowlist (by design). Headless test script (scratchpad, not in repo): puppeteer-core + Chrome `--use-fake-device-for-media-stream`.
 - **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`; user git has `pull.rebase=true`, so commit before pulling)
-- **Live:** https://shabd-coach.vercel.app (Vercel, auto-deploys on push to `main`; env var `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` set, type Config)
-- **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, prompt v3 published, TTS V3 Conversational, allowlist `shabd-coach.vercel.app`
-- **Run locally:** `npm install` → copy `.env.example` to `.env.local` with the agent ID → `npm run dev` → http://localhost:3000
-- **Checks:** `npm test` · `npx tsc --noEmit` · `npm run lint` · `npm run build`
-- **Blockers:** none
+- **Live:** https://shabd-coach.vercel.app (auto-deploys on push; env `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`, type Config)
+- **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, prompt v3, TTS V3 Conversational, allowlist `shabd-coach.vercel.app`
+- **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
+- **Checks:** `npm test` · `npm run build` (then `npx tsc --noEmit`; tsc needs `.next/types` from a build/dev run) · `npm run lint`
+- **Gotcha:** the project lives on the iCloud-synced Desktop, which creates `* 2.*` duplicate files in `.next/` and breaks `tsc`. Fix: `rm -rf .next`.
+
+---
+
+## 2026-09-17 — Phase 4: voice wiring (code done, live test blocked)
+**Did**
+- Installed `@elevenlabs/react@1.15.2` (+ `@elevenlabs/client@1.25.0`). Read its types: the API is `ConversationProvider` + granular hooks, not the single `useConversation` from the older docs.
+- `app/page.tsx`: `<ConversationProvider>` wraps `App`. **Start tap** → `getUserMedia` (then stops the tracks; the SDK opens its own) → `pickWords` → `startSession({ agentId, dynamicVariables {track, language, word_list}, overrides.agent.language, clientTools {log_result, end_session}, onMessage, onModeChange, onError, onDisconnect })`.
+  - Client tools are passed in `startSession`, not registered via `useConversationClientTool` in `SessionScreen`: the provider builds the tool list **at start time**, and `SessionScreen` mounts after the tap.
+  - Booleans are coerced (`true` or `"true"`) in case the LLM sends strings.
+  - `end_session` → store the summary and set `ending`; the next `onModeChange → listening` (goodbye finished) calls `endSession()`; 15 s `setTimeout` fallback.
+  - `onDisconnect` → summary if any message was received, else back to setup with "The coach couldn't start right now…". `onError` before any message → "Couldn't connect…". Errors are logged as `[shabd-coach]`.
+- `components/SessionScreen.tsx`: mock removed; props now `{track, language, words, transcript, results, onEnd}`; orb from `useConversationStatus` + `useConversationMode`; "All 5 words done. Revision quiz time!" card after word 5; empty transcript hint.
+- `components/SetupScreen.tsx`: `error` prop → alert above Start (mic denied, unsupported browser, missing agent ID, connect failure).
+- `lib/session.ts`: `LANGUAGES[*].greeting` (English / Devanagari Hinglish / Kanglish with a `{track}` slot); test added (5/5). `page.tsx` sends it as `overrides.agent.firstMessage` only if `GREETING_OVERRIDE = true` (currently **false**).
+  - Why: prod run 1 showed the default greeting for `hi` was formal Hindi ("मैं Hinglish में समझाऊँगा"). The Kannada greeting text needs a native check.
+
+**Verified**
+- tsc ✅ · lint ✅ · tests 5/5 ✅ · build ✅
+- Localhost + fake mic: token 200, LiveKit connects, then the agent closes. Same with overrides removed → cause = **allowlist** (localhost not allowed). Error UX shows correctly.
+- **Prod (db94e76) + fake mic: ✅ worked.** Greeting arrived (Devanagari), the fake mic was transcribed as "हाँ।", orb "Coach is speaking", word card + progress rendered.
+- **Prod after that: ❌ every session is closed by the agent before any message** (with the greeting override, without it, and in English). So it's **not** caused by the overrides. Stopped testing to save credits. Suspects: account/agent side (credits or usage cap, concurrent session limit after several rapid headless runs, agent unpublished or edited, override permissions).
+
+**Mistakes to avoid (for the next person)**
+- A command chain with `;` let a commit through while `tsc` failed (6001a79 didn't build on Vercel; fixed in 0d55c00). Run checks with `&&` only.
+- `useEffect(() => expr)` must not return a value (see Phase 3).
 
 ---
 

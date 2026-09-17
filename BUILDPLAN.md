@@ -49,15 +49,16 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **3.5 (C)** Mobile-first styling; check at 375px width.
   Done when: all 3 screens are clickable end to end with fake data, on desktop and mobile widths.
 
-## Phase 4 — Voice wiring (~1.5 h, needs 1.7)
-- [ ] **4.0 (G)** Temporarily clear the agent allowlist for local testing; re-add `shabd-coach.vercel.app` at 5.2.
-- [ ] **4.1 (C)** Install `@elevenlabs/react`; confirm the hook API against the installed version.
-- [ ] **4.2 (C)** Mic permission request on Start, with the denied state UI.
-- [ ] **4.3 (C)** `startSession` with dynamicVariables + language/firstMessage overrides.
-- [ ] **4.4 (C)** `onMessage` → transcript; `onModeChange` / `isSpeaking` → orb.
-- [ ] **4.5 (C)** `clientTools.log_result` → results (dedupe by word); `end_session` → summary.
-- [ ] **4.6 (C)** End button + unexpected disconnect → summary with partial results; `onError` → toast + back to setup.
-  Done when: a full live 5-word session in English works locally and lands on a correct summary.
+## Phase 4 — Voice wiring (~1.5 h, needs 1.7) 🟡 IN PROGRESS
+- [x] ~~**4.0 (G)** Clear the allowlist for local testing~~ → **not needed**: test on https://shabd-coach.vercel.app (already allowlisted). Localhost is dropped by the allowlist (confirmed).
+- [x] **4.1 (C)** Install `@elevenlabs/react` (1.15.2). API differs from the docs we planned against: `ConversationProvider` + `useConversationControls` / `useConversationStatus` / `useConversationMode`.
+- [x] **4.2 (C)** Mic permission requested inside the Start tap; denied / no-mediaDevices → error on the setup screen.
+- [x] **4.3 (C)** `startSession` with dynamicVariables + `overrides.agent.language`. Per-language greeting (`firstMessage`) is coded but **off** (`GREETING_OVERRIDE = false`) until confirmed allowed.
+- [x] **4.4 (C)** `onMessage` → transcript; `useConversationMode` + status → orb.
+- [x] **4.5 (C)** `clientTools.log_result` → results (upsert); `end_session` → summary, hang up when the agent goes back to listening (15 s fallback).
+- [x] **4.6 (C)** End button + disconnect → summary; disconnect before any message → back to setup with an error.
+- [ ] **4.7 (G+C)** 🔴 **Blocker:** sessions on prod connect, then are closed by the agent (`reason: agent`) before any message, in Hinglish and English. One earlier prod run worked (greeting + reply). Check the ElevenLabs dashboard (see BUILDLOG).
+  Done when: a full live 5-word session works on the live URL and lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)
 - [ ] **5.1 (G+C)** Live test: Hinglish and Kannada sessions end to end.

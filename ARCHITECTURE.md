@@ -6,7 +6,7 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 | Area | Choice | Why |
 |---|---|---|
 | Voice agent | **ElevenLabs Agents** (STT + LLM + TTS in one), TTS model **V3 Conversational** | Low latency, Hindi + Kannada voices, no backend. Apna uses ElevenLabs too. |
-| Client ↔ agent | **`@elevenlabs/react` SDK** (`useConversation`) | We need a custom UI: live transcript, scoreboard, summary, and a language switch for each session |
+| Client ↔ agent | **`@elevenlabs/react` 1.15** (`ConversationProvider` in `app/page.tsx`; `useConversationControls`, `useConversationStatus`, `useConversationMode`; client tools passed in `startSession`) | We need a custom UI: live transcript, scoreboard, summary, and a language switch for each session |
 | Frontend | **Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4**, on the Node.js runtime | The user's choice. Deploys natively to Vercel. |
 | UI components | **shadcn/ui** (style `radix-nova`, base color neutral, Radix primitives, lucide icons) | The user's choice. Components are copied into `components/ui/` and fully editable. |
 | Backend | **None in v1.** Next.js route handlers are the upgrade path. | The agent is public, so no secret needs protecting |
@@ -42,10 +42,10 @@ Status: **decided 2026-09-17**. Product context lives in `CONTEXT.md`; the task 
 1. The user picks a **track** and a **language** → taps **Start**.
 2. The page requests mic permission (`getUserMedia`). If denied → show a friendly message and stop.
 3. `pickWords(track, 5)` chooses 5 random words. `buildWordList(words, language)` turns them into a text block.
-4. `startSession({ agentId, dynamicVariables: { track, language, word_list }, overrides: { agent: { language, firstMessage } } })`.
+4. `startSession({ agentId, dynamicVariables: { track, language, word_list }, overrides: { agent: { language } }, clientTools, callbacks })` is called from the Start tap in `app/page.tsx`. `firstMessage` override is behind `GREETING_OVERRIDE` (off).
 5. The agent teaches the loop. After each word it calls **`log_result`** → the page appends to `results[]` → the scoreboard updates.
-6. After the review quiz the agent calls **`end_session`** → the page stores the summary → ends the session → SummaryScreen.
-7. If the connection drops, or the user taps **End** before `end_session` → go to SummaryScreen anyway, using whatever `results[]` has.
+6. After the review quiz the agent calls **`end_session`** → the page stores the summary → hangs up when the agent returns to listening (after its goodbye; 15 s fallback) → SummaryScreen.
+7. If the connection drops, or the user taps **End** before `end_session` → SummaryScreen with partial `results[]`. If it drops **before any message** → back to Setup with an error.
 
 ## 4. Folder structure
 ```
@@ -57,7 +57,7 @@ voice-agent/
 ├─ components/
 │  ├─ ui/                 # shadcn/ui components (add with `npx shadcn@latest add <name>`)
 │  ├─ SetupScreen.tsx     # track cards + language picker + Start
-│  ├─ SessionScreen.tsx   # props {track, language, words, onFinish(results, summary|null)}; orb, 5-dot progress, current-word card, transcript, End
+│  ├─ SessionScreen.tsx   # props {track, language, words, transcript, results, onEnd}; reads status/mode hooks; orb, progress, word card, transcript
 │  └─ SummaryScreen.tsx   # score, per-word tips, Practice again
 ├─ lib/
 │  ├─ utils.ts            # shadcn `cn()` helper
@@ -121,5 +121,5 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 
 ## 8. Unverified / to check during build
 - Kannada: supported by **V3 Conversational** (74 languages), not Flash v2.5. Still to confirm by ear in the dashboard test. Fallback: Kannada meanings as on-screen text, with the agent speaking Hinglish/English.
-- Exact `@elevenlabs/react` API in the installed version: `useConversation` options vs any provider requirement. Check the package README when installing.
+- ~~Exact `@elevenlabs/react` API~~ → checked: provider + granular hooks (v1.15.2).
 - Free-tier agent minutes (not verified — CONTEXT §2.4).
