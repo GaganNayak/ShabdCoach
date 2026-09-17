@@ -57,7 +57,7 @@ voice-agent/
 ├─ components/
 │  ├─ ui/                 # shadcn/ui components (add with `npx shadcn@latest add <name>`)
 │  ├─ SetupScreen.tsx     # track cards + language picker + Start
-│  ├─ SessionScreen.tsx   # useConversation wiring, orb, transcript, scoreboard, End button
+│  ├─ SessionScreen.tsx   # props {track, language, words, onFinish(results, summary|null)}; orb, 5-dot progress, current-word card, transcript, End
 │  └─ SummaryScreen.tsx   # score, per-word tips, Practice again
 ├─ lib/
 │  ├─ utils.ts            # shadcn `cn()` helper
@@ -79,6 +79,7 @@ type LanguageId = "english" | "hinglish" | "kannada";
 type Word = { word: string; en: string; hi: string; kn: string; example: string };
 type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string };
 type Phase = "setup" | "session" | "summary";
+type TranscriptLine = { role: "agent" | "user"; text: string };
 ```
 `Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES`, `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `upsertResult` (dedupe by word, case-insensitive).
 
