@@ -72,7 +72,12 @@ function App() {
         language: LANGUAGES[language].label,
         word_list: buildWordList(picked, language),
       },
-      overrides: { agent: { language: LANGUAGES[language].agentCode } },
+      overrides: {
+        agent: {
+          language: LANGUAGES[language].agentCode,
+          firstMessage: LANGUAGES[language].greeting.replace("{track}", TRACKS[track].label),
+        },
+      },
       clientTools: {
         log_result: (p: Record<string, unknown>) => {
           setResults((r) =>

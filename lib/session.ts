@@ -7,11 +7,21 @@ export type Phase = "setup" | "session" | "summary";
 export type TranscriptLine = { role: "agent" | "user"; text: string };
 
 // agentCode → overrides.agent.language; label → {{language}}; field → which meaning goes in {{word_list}}
+// greeting → overrides.agent.firstMessage ({track} replaced). Without it, the agent's auto-translated Hindi greeting is formal, not Hinglish.
 export const LANGUAGES = {
-  english: { label: "English", native: "English", agentCode: "en", field: "en" },
-  hinglish: { label: "Hinglish", native: "Hinglish", agentCode: "hi", field: "hi" },
-  kannada: { label: "Kannada", native: "ಕನ್ನಡ", agentCode: "kn", field: "kn", beta: true }, // voice quality not yet natural (test 1.6a)
-} as const satisfies Record<LanguageId, { label: string; native: string; agentCode: string; field: keyof Word; beta?: boolean }>;
+  english: {
+    label: "English", native: "English", agentCode: "en", field: "en",
+    greeting: "Hi! I'm Shabd Coach. Today we'll learn 5 useful English words for {track} jobs. Ready to start?",
+  },
+  hinglish: {
+    label: "Hinglish", native: "Hinglish", agentCode: "hi", field: "hi",
+    greeting: "नमस्ते! मैं Shabd Coach हूँ। आज हम {track} jobs के लिए 5 useful English words सीखेंगे। Ready हैं?",
+  },
+  kannada: {
+    label: "Kannada", native: "ಕನ್ನಡ", agentCode: "kn", field: "kn", beta: true, // voice quality not yet natural (test 1.6a)
+    greeting: "ನಮಸ್ಕಾರ! ನಾನು Shabd Coach. ಇವತ್ತು ನಾವು {track} jobs ಗೆ 5 useful English words ಕಲಿಯೋಣ. Ready ನಾ?",
+  },
+} as const satisfies Record<LanguageId, { label: string; native: string; agentCode: string; field: keyof Word; greeting: string; beta?: boolean }>;
 
 export const WORDS_PER_SESSION = 5;
 

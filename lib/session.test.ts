@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { TRACKS } from "./words.ts";
-import { buildWordList, pickWords, upsertResult } from "./session.ts";
+import { LANGUAGES, buildWordList, pickWords, upsertResult } from "./session.ts";
 
 test("word bank: 10 complete words per track", () => {
   for (const [id, t] of Object.entries(TRACKS)) {
@@ -24,6 +24,10 @@ test("buildWordList uses the chosen language's meaning", () => {
   assert.ok(buildWordList([w], "hinglish").includes(`(Hinglish: ${w.hi})`));
   assert.ok(buildWordList([w], "kannada").includes(`(Kannada: ${w.kn})`));
   assert.ok(!buildWordList(TRACKS.support.words.slice(0, 5), "english").includes("\n"), "single line");
+});
+
+test("every language greeting has a {track} slot", () => {
+  for (const l of Object.values(LANGUAGES)) assert.ok(l.greeting.includes("{track}"), l.label);
 });
 
 test("upsertResult replaces a repeated word", () => {
