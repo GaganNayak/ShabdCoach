@@ -26,6 +26,10 @@ const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
 const TURN_END_MS = 1200;
 const GREETING_OVERRIDE = true; // agent allows the first-message override (verified 2026-09-17)
 
+// Debug switches for live diagnosis without a redeploy: ?conn=webrtc|websocket · ?ov=0 (skip overrides)
+// ponytail: remove once the WebRTC-vs-WebSocket question is settled.
+const flag = (name: string) => (typeof window === "undefined" ? null : new URLSearchParams(window.location.search).get(name));
+
 export default function Home() {
   return (
     <ConversationProvider>
@@ -85,14 +89,14 @@ function App() {
 
     startSession({
       agentId: AGENT_ID,
-      // WebRTC has a jitter buffer; raw WebSocket PCM underran on slower-generating languages (Kannada).
-      connectionType: "webrtc",
+      // WebRTC has a jitter buffer, but this agent drops WebRTC sessions (see BUILDLOG 5.1c) → WebSocket by default.
+      connectionType: flag("conn") === "webrtc" ? "webrtc" : "websocket",
       dynamicVariables: {
         track: TRACKS[track].label,
         language: LANGUAGES[language].label,
         word_list: buildWordList(picked, language),
       },
-      overrides: {
+      overrides: flag("ov") === "0" ? {} : {
         agent: {
           language: LANGUAGES[language].agentCode,
           // Needs Security → Overrides → "First message" enabled on the agent, else the session is dropped.
