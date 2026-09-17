@@ -154,3 +154,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Kannada choppiness traced to WebSocket audio having no jitter buffer (stream ran ~30 ms ahead in all languages). Switched back to WebRTC; cue tracker works without raw PCM.
 - 2026-09-17: WebRTC proved unreliable with this agent (sessions dropped); staying on WebSocket. Kannada stays as a Beta voice with an on-screen stutter note (user decision); greetings move to dashboard language presets.
 - 2026-09-17: Phase 5 done — Android Chrome and all edge cases (deny mic, End early, airplane mode, WhatsApp browser) verified by the user.
+- 2026-09-17: Phase 6 done (weak-word recall, favicon, link preview) and README written. Remaining: demo video, final check, submit.

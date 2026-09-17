@@ -88,13 +88,13 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **5.3 (C)** Bugs found in Phase 5 fixed and deployed (card timing, WebSocket transport, Kannada beta note).
 - [x] **5.4 (G+C)** Edge cases ✅: deny mic → error + retry · End early → partial summary · airplane mode mid-session · WhatsApp in-app browser.
 
-## Phase 6 — Polish (optional, ~1 h)
-- [ ] **6.1 (C)** `localStorage` "weak words": words missed last time are included first next session.
-- [ ] **6.2 (C)** Branding: name, favicon, OG image/title for a nice link preview when shared.
-- [ ] **6.3 (C)** Small "How it works" section on the setup screen (Teach → Recall → Use → Review).
+## Phase 6 — Polish ✅ DONE
+- [x] **6.1 (C)** `localStorage` weak words: words not fully learned come back first next session (`nextWeak`/`loadWeak`/`saveWeak`, capped at 20).
+- [x] **6.2 (C)** Branding: `app/icon.svg` favicon, `app/opengraph-image.tsx` (generated 1200×630 card), OG/Twitter metadata + `metadataBase`.
+- [x] ~~**6.3**~~ Skipped: the setup header already reads "5 words · about 5 minutes · Learn → Recall → Use it → Review".
 
 ## Phase 7 — Submission (~1 h)
-- [ ] **7.1 (C)** `README.md`: problem, target user, learning loop + research, architecture diagram, metrics we'd track, what's next (Tulu/Konkani, SRS, pronunciation).
+- [x] **7.1 (C)** `README.md` written for reviewers: user + evidence, lesson loop, features, architecture, metrics, honest limitations, next steps, local setup.
 - [ ] **7.2 (G)** Record a 60–90s demo video (Loom), one Hinglish or Kannada session.
 - [ ] **7.3 (G)** Final check of the live link in an incognito window; confirm **enough agent minutes remain for reviewers** (each session ≈ 5–6 min).
 - [ ] **7.4 (G)** Submit: live link + GitHub repo + demo video.

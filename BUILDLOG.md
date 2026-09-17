@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–5 done (except 2.4 Kannada word review) → **Phase 6 (optional polish) + Phase 7 (submission)**
-- **Next step:** AI → Phase 6 polish + 7.1 README · user → 7.2 demo video, 7.3 final check (minutes left for reviewers), 7.4 submit.
+- **Phase:** 0–6 done (except 2.4 Kannada word review) · 7.1 README done → **remaining: 7.2 demo video, 7.3 final check, 7.4 submit**
+- **Next step (user):** 7.2 record a 60–90 s demo · 7.3 final check in a private window + confirm agent minutes left · 7.4 submit link + repo + video.
 - **Connection:** `connectionType: "websocket"` (WebRTC is dropped by this agent — 5.1c). Debug flags on the live URL: `?conn=webrtc|websocket`, `?ov=0|lang|first`. Greeting override **off** → greetings come from the dashboard language presets.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,15 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** `.next/` goes stale (iCloud `* 2.*` duplicates; deleted routes still referenced in `.next/dev/types`) and breaks `tsc` → `rm -rf .next` and rebuild
+
+---
+
+## 2026-09-17 — Phase 6 polish + 7.1 README
+- **6.1 weak words:** `pickWords(track, n, weak)` puts previously-missed words first; `nextWeak(prev, words, results)` keeps words that weren't fully learned (newest first, cap 20) and drops learned ones; `loadWeak`/`saveWeak` wrap `localStorage` in try/catch (private mode safe). Saved on disconnect via a `resultsRef` (a ref, not a state-updater side effect). 2 tests added → 12/12 ✅.
+- **6.2 branding:** `app/icon.svg` (mic on the brand green) replaces the default favicon; `app/opengraph-image.tsx` generates a 1200×630 card with `next/og`; `metadataBase` + OpenGraph/Twitter metadata in `layout.tsx`. Verified locally: og:* tags present, image renders 200 / ~50 KB. Kannada script is written as "Kannada" **in the OG image only** — the OG renderer has no Kannada font and mis-shapes ಕನ್ನಡ (the app itself uses Noto Sans Kannada and renders fine).
+- **6.3 skipped** (YAGNI): the setup header already explains the loop.
+- **7.1 README** rewritten for reviewers: who it's for + the Apna/vocabulary evidence with links, the lesson loop table, features, architecture diagram, what I'd measure, honest limitations (Kannada beta stutter, 40 hand-written words, no pronunciation scoring, browser-only progress, minute costs) and next steps.
+- Checks: build ✅ tsc ✅ lint ✅ tests 12/12 ✅.
 
 ---
 
