@@ -42,9 +42,20 @@ Run: Hinglish / English / Kannada
 8. Anything weird:
 ```
 
-## First message
+## First message (dashboard — Agent tab, and one per additional language)
+The page does **not** override this (see ARCHITECTURE §7): sending the language *and* first-message override together makes this agent drop WebRTC sessions. Set the greeting per language in the dashboard instead.
+
+**English (default):**
 ```
 Hi! I'm Shabd Coach. Today we'll learn 5 useful English words for {{track}} jobs. I'll explain in {{language}}. Ready to start?
+```
+**Hindi preset** (Agent tab → Additional languages → Hindi → first message) — natural Hinglish, not the auto-translation:
+```
+नमस्ते! मैं Shabd Coach हूँ। आज हम {{track}} jobs के लिए 5 useful English words सीखेंगे। Ready हैं?
+```
+**Kannada preset** — Kanglish:
+```
+ನಮಸ್ಕಾರ! ನಾನು Shabd Coach. ಇವತ್ತು ನಾವು {{track}} jobs ಗೆ 5 useful English words ಕಲಿಯೋಣ. Ready ನಾ?
 ```
 
 ## System prompt

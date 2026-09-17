@@ -24,7 +24,9 @@ import {
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
 // The coach's audio can pause briefly mid-reply (e.g. while it calls a tool); only this much silence ends a turn.
 const TURN_END_MS = 1200;
-const GREETING_OVERRIDE = true; // agent allows the first-message override (verified 2026-09-17)
+// This agent drops WebRTC sessions when BOTH agent overrides are sent (BUILDLOG 5.1c). We need the language
+// one, so the greetings live in the dashboard language presets instead (agent-prompt.md).
+const GREETING_OVERRIDE = false;
 
 // Debug switches for live diagnosis without a redeploy: ?conn=webrtc|websocket · ?ov=0 (skip overrides)
 // ponytail: remove once the WebRTC-vs-WebSocket question is settled.
@@ -90,8 +92,8 @@ function App() {
 
     startSession({
       agentId: AGENT_ID,
-      // WebRTC has a jitter buffer, but this agent drops WebRTC sessions (see BUILDLOG 5.1c) → WebSocket by default.
-      connectionType: flag("conn") === "webrtc" ? "webrtc" : "websocket",
+      // WebRTC has the jitter buffer that WebSocket PCM lacks (BUILDLOG 5.1a).
+      connectionType: flag("conn") === "websocket" ? "websocket" : "webrtc",
       dynamicVariables: {
         track: TRACKS[track].label,
         language: LANGUAGES[language].label,
