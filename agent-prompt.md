@@ -98,3 +98,4 @@ For every param: **Value Type = LLM Prompt** (the agent's AI fills the value fro
 - [ ] Local voice testing (Phase 4): temporarily remove the allowlist entry while testing on localhost, and re-add it before sharing the link. `lvh.me:3000` passes validation but isn't a secure context, so the browser blocks the mic.
 - [ ] Security → Overrides: enable **language** and **first message** only (the page sets en/hi/kn per session).
 - [ ] Usage cap / max call duration: ~8 min.
+- [ ] **Publish** after testing, and again after every change (edits are drafts until published).

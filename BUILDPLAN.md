@@ -26,6 +26,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [ ] **1.5 (G+C)** Test in the dashboard: 1 session each in English, Hinglish, Kannada. Note issues (too long turns, off-list words, Kannada voice quality).
   Done when: all 3 languages complete a word loop; the Kannada verdict is recorded in CONTEXT.md.
 - [ ] **1.6 (C)** Tune `agent-prompt.md` from the test notes; G re-pastes.
+- [ ] **1.6b (G)** **Publish** the agent (dashboard edits stay as a draft until published; the page uses the live version). Re-publish after every prompt change.
 - [ ] **1.7 (G)** Share the agent ID → `.env.local` + Vercel env var `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`.
 
 > Phases 2–3 do not need the agent and can run in parallel with Phase 1.
