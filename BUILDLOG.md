@@ -6,15 +6,36 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 1 in progress (1.6a re-test), Phase 2 done (except 2.4), Phase 3 next
-- **Done:** Phase 0 complete (0.1–0.5), 2.1, 2.2, 2.3
-- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: Vercel env var (1.7), Kannada review (2.4) (ElevenLabs agent), 2.4 (Kannada review)
-- **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`)
-- **Live:** https://shabd-coach.vercel.app (Vercel, auto-deploys on push to `main`)
-- **Test:** `npm test`
+- **Phase:** 0, 1, 2, 3 done (except 2.4 Kannada review) → **Phase 4 next: voice wiring**
+- **Next step (AI):** 4.1 — install `@elevenlabs/react`, check its API in the installed version, and replace the mock in `components/SessionScreen.tsx` (keep its props contract).
+- **Waiting on the user:** 4.0 clear the agent allowlist before local voice tests (re-add `shabd-coach.vercel.app` at 5.2) · 2.4 Kannada word review
+- **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`; user git has `pull.rebase=true`, so commit before pulling)
+- **Live:** https://shabd-coach.vercel.app (Vercel, auto-deploys on push to `main`; env var `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` set, type Config)
+- **Agent:** ElevenLabs "Shabd Coach", ID `agent_7301m2q5ec0xf7m81qswyy0kdbpe`, prompt v3 published, TTS V3 Conversational, allowlist `shabd-coach.vercel.app`
+- **Run locally:** `npm install` → copy `.env.example` to `.env.local` with the agent ID → `npm run dev` → http://localhost:3000
+- **Checks:** `npm test` · `npx tsc --noEmit` · `npm run lint` · `npm run build`
 - **Blockers:** none
-- **Run locally:** `npm install` → `npm run dev` → http://localhost:3000
-- **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID=agent_7301m2q5ec0xf7m81qswyy0kdbpe`
+
+---
+
+## 2026-09-17 — Phase 3: UI screens (mock data)
+**Did**
+- shadcn components added: `card`, `badge`, `toggle-group` (+ `toggle`), `scroll-area`, `progress`.
+- `app/layout.tsx`: real title/description; added **Noto Sans Kannada** (`--font-kannada`) because Geist has no Kannada glyphs. Fixed the circular `--font-sans: var(--font-sans)` left by shadcn init in `globals.css`. Brand colour: `--primary`/`--ring` = green `oklch(0.52 0.12 165)`.
+- `app/page.tsx` ("use client"): phase state machine `setup → session → summary`; holds track (default interview), language (default hinglish), words (`pickWords` on start), results, summary.
+- `components/SetupScreen.tsx`: 4 track cards (radio semantics), language `ToggleGroup` (English / Hinglish / ಕನ್ನಡ + **Beta** badge), "Start speaking".
+- `components/SessionScreen.tsx`: header + **End**, speaking/listening/connecting **orb**, 5-dot progress (✓/✗), **current-word card** (word, English meaning, meaning in the chosen language, example), which doubles as on-screen Kannada support. Transcript with auto-scroll. **Mock:** a "Simulate next word (mock)" button fakes transcript + `log_result` (marked `ponytail:`); Phase 4 replaces it with `useConversation`.
+- `components/SummaryScreen.tsx`: score X/5 + progress bar, the agent's summary sentence, per-word Meaning/Used marks + tip ("Not reached" when missing), "Practice 5 new words", "Change job area or language".
+- "Learned" = `recalled || used_correctly` (same rule as the `end_session` prompt).
+
+**Verified**
+- `tsc` ✅ · lint ✅ · `npm test` 4/4 ✅ · build ✅
+- Headless Chrome (puppeteer-core scratch script, not in repo) at 375×812 and 1280×800: full flow, End-early → "Not reached", Change → setup. No console errors, no horizontal overflow.
+- Bug caught and fixed: `useEffect(() => el.scrollIntoView(...))` returned a value, so React crashed with "destroy is not a function". Effects now use braces.
+
+**Notes for next person**
+- The mock button is live on Vercel until Phase 4.
+- Keep `SessionScreen`'s `onFinish(results, summary | null)` contract; `null` = ended early/disconnected.
 
 ---
 

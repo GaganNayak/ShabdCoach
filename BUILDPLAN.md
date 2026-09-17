@@ -29,7 +29,7 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **1.6a (G)** Re-paste prompt v2 → re-test: one Hinglish run (word order) + one Kannada run (Kanglish). Result: order OK but invented words (list likely not received); answered off-topic; Kannada better, not great → Beta.
 - [x] **1.6c (G)** Paste prompt v3 → re-test Hinglish with the **one-line** word_list; ask "Who is the president of India?" mid-lesson (should refuse).
 - [x] **1.6b (G)** **Publish** the agent (dashboard edits stay as a draft until published; the page uses the live version). Re-publish after every prompt change.
-- [x] **1.7 (G)** Share the agent ID → `.env.local` ✅ + Vercel env var `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (pending, user).
+- [x] **1.7 (G)** Share the agent ID → `.env.local` ✅ + Vercel env var `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` ✅ (type Config).
 
 > Phases 2–3 do not need the agent and can run in parallel with Phase 1.
 
