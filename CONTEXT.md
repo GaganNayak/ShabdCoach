@@ -147,3 +147,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Card timing v2: stays on the word showing ✓/✗ + tip during feedback; advances on "Word N of 5" or the learner's next reply.
 - 2026-09-17: Card timing v3: advances when the coach's speaking turn after the result ends; handles "two of five"; V3 [slow] tags hidden from transcript.
 - 2026-09-17: Prompt v5: coach pauses after feedback ("Ready for word N?") so feedback and the next word are separate turns; the card switches in between.
+- 2026-09-17: Turn end debounced (1.2 s silence) so mid-reply audio gaps don't move the card or hang up early.

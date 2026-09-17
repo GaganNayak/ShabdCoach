@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card timing v3 + prompt v5 → waiting for **4.17** (user pastes v5, publishes, re-checks) → Phase 5
-- **Next step (user):** 4.17, paste the prompt v5 system prompt → Publish → 2 words on prod: feedback ends with "Ready for word N?", the card switches, then the coach teaches the next word. Then Phase 5 (Kannada session, Android + iPhone).
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; prompt v5 live + turn-end debounce → waiting for **4.19** re-check → Phase 5
+- **Next step (user):** 4.19, 2 words on prod: the card must not switch during feedback, only ~1 s after "Ready for word N?"; is the extra yes-step OK? Then Phase 5 (Kannada session, Android + iPhone).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,15 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.17 → 4.18 turn-end debounce
+- The user tested prompt v5: the coach pauses with "Ready for word 2?" ✅ and the card switches before the next word is explained ✅, but it **switched during the previous word's feedback**. The extra-yes pacing wasn't judged yet.
+- Diagnosis (inferred, not measured): `onModeChange` flips to "listening" during short audio gaps inside one reply (e.g. while the agent issues `log_result`), so `turnsDone` incremented mid-feedback. The same flicker could also have triggered the `end_session` auto hang-up mid-goodbye.
+- Fix (`app/page.tsx`): a turn is finished only after `TURN_END_MS = 1200` ms of continuous "listening" (setTimeout cancelled by "speaking"). `spoke` ref ensures only real coach turns count. Auto hang-up moved into the same debounced callback.
+- **Calibration knob:** if the card still switches early, raise `TURN_END_MS` (e.g. 1800). If switching feels laggy, lower it.
+- Verified: build ✅ tsc ✅ lint ✅ tests 8/8 ✅ (debounce itself not unit-tested; it's timer glue).
 
 ---
 

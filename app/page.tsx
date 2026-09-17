@@ -21,6 +21,8 @@ import {
 } from "@/lib/session";
 
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
+// The coach's audio can pause briefly mid-reply (e.g. while it calls a tool); only this much silence ends a turn.
+const TURN_END_MS = 1200;
 const GREETING_OVERRIDE = true; // agent allows the first-message override (verified 2026-09-17)
 
 export default function Home() {
@@ -43,7 +45,8 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [turnsDone, setTurnsDone] = useState(0); // finished coach speaking turns
   const turns = useRef(0); // same, readable synchronously inside tool/message callbacks
-  const lastMode = useRef("listening");
+  const spoke = useRef(false); // coach spoke since the last finished turn
+  const silence = useRef<ReturnType<typeof setTimeout>>(undefined);
   const heard = useRef(false); // got at least one message → a real session happened
   const ending = useRef(false); // end_session called → hang up once the goodbye finishes
 
@@ -68,7 +71,8 @@ function App() {
     setSummary(null);
     heard.current = false;
     turns.current = 0;
-    lastMode.current = "listening";
+    spoke.current = false;
+    clearTimeout(silence.current);
     setTurnsDone(0);
     ending.current = false;
     setPhase("session");
@@ -114,9 +118,16 @@ function App() {
         setTranscript((t) => [...t, { role, text: cleanSpeech(message), turn: turns.current }]);
       },
       onModeChange: ({ mode }) => {
-        if (lastMode.current === "speaking" && mode === "listening") setTurnsDone(++turns.current);
-        lastMode.current = mode;
-        if (ending.current && mode === "listening") endSession();
+        clearTimeout(silence.current);
+        if (mode === "speaking") {
+          spoke.current = true;
+          return;
+        }
+        silence.current = setTimeout(() => {
+          if (spoke.current) setTurnsDone(++turns.current);
+          spoke.current = false;
+          if (ending.current) endSession(); // hang up only after the goodbye has really finished
+        }, TURN_END_MS);
       },
       onError: (message) => {
         console.error("[shabd-coach]", message);

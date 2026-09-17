@@ -69,7 +69,9 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.14 (C)** Fix v3: the card advances when the coach **turn after the log/cue finishes** (speaking → listening); cue regex accepts one…five; voice tags stripped from the transcript.
 - [x] **4.15 (G)** Re-check → the card switches only after the whole turn, because the coach says feedback + "Word N of 5" + explanation in **one** response.
 - [x] **4.16 (C)** Prompt v5: the feedback turn ends with "Ready for word N?" and waits; the next word starts in its own turn. No code change.
-- [ ] **4.17 (G)** Paste prompt v5 → Publish → 2 words: the card should switch after the feedback, before the coach teaches the next word.
+- [x] **4.17 (G)** Prompt v5 live: pause "Ready for word 2?" ✅, card switches before the next explanation ✅, but it switched **during** the previous word's feedback.
+- [x] **4.18 (C)** Turn end = 1.2 s of continuous silence (`TURN_END_MS`), so mid-reply audio gaps no longer count; auto hang-up uses the same debounce.
+- [ ] **4.19 (G)** Re-check 2 words: the card switches only after "Ready for word N?"; also judge whether the extra "yes" step feels slow.
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)
