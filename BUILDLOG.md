@@ -25,6 +25,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **2.3** `lib/session.test.ts` using built-in `node:test`. Node 24 strips types, so there's no test dependency. Script: `npm test` → `node --test "lib/**/*.test.ts"`.
 - `tsconfig.json`: added `allowImportingTsExtensions: true`, because Node needs `./words.ts` style imports inside `lib/`. The app can still import `@/lib/session` without an extension.
 
+- Later the user ran `git pull --rebase` themselves, which stopped partway. I cleared it with `git rebase --quit` (not `--abort`, which would have reset `main` to `bc0a693`). `main` = `origin/main` = `459d337`. A leftover local branch `dev-nayak` (`4cf761a`) only holds the scaffold; it's safe to delete.
+
 **Verified:** `npm test` 4/4 ✅ · `tsc --noEmit` ✅ · lint ✅ (0 warnings now) · build ✅
 
 **Notes**
