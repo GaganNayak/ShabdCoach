@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useConversationMode, useConversationStatus } from "@elevenlabs/react";
 import { Check, PhoneOff, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -34,11 +34,8 @@ export default function SessionScreen({ track, language, words, transcript, resu
   }, [transcript]);
 
   const index = currentIndex(words, results, transcript);
-  // log_result arrives while the coach is still speaking feedback: dots update at once,
-  // but the word card only moves on when it's the learner's turn.
-  const [shown, setShown] = useState(0);
-  if (mode !== "speaking" && shown !== index) setShown(index);
-  const current = words[shown];
+  const current = words[index];
+  const currentResult = current && findResult(results, current); // logged, feedback being spoken
 
   return (
     <div className="flex flex-1 flex-col gap-4">
@@ -65,7 +62,7 @@ export default function SessionScreen({ track, language, words, transcript, resu
               title={w.word}
               className={cn(
                 "flex size-9 items-center justify-center rounded-full text-xs font-medium ring-1 ring-foreground/10",
-                !r && i === shown && "ring-2 ring-primary",
+                i === index && "ring-2 ring-primary ring-offset-2",
                 unlogged && "bg-muted text-muted-foreground ring-0",
                 r && passed && "bg-primary text-primary-foreground ring-0",
                 r && !passed && "bg-destructive/10 text-destructive ring-0",
@@ -83,11 +80,20 @@ export default function SessionScreen({ track, language, words, transcript, resu
           <CardContent className="space-y-1">
             <div className="flex items-baseline justify-between gap-2">
               <p className="text-xl font-semibold">{current.word}</p>
-              <Badge variant="secondary">Now learning</Badge>
+              {currentResult ? (
+                currentResult.recalled || currentResult.used_correctly ? (
+                  <Badge>Learned ✓</Badge>
+                ) : (
+                  <Badge variant="destructive">Keep practising</Badge>
+                )
+              ) : (
+                <Badge variant="secondary">Now learning</Badge>
+              )}
             </div>
             <p className="text-sm">{current.en}</p>
             {lang.field !== "en" && <p className="text-sm text-muted-foreground">{current[lang.field]}</p>}
             <p className="pt-1 text-sm italic text-muted-foreground">“{current.example}”</p>
+            {currentResult?.tip && <p className="pt-1 text-sm">💡 {currentResult.tip}</p>}
           </CardContent>
         </Card>
       ) : (

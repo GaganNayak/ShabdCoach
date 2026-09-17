@@ -77,11 +77,11 @@ voice-agent/
 type TrackId = "interview" | "support" | "sales" | "office";
 type LanguageId = "english" | "hinglish" | "kannada";
 type Word = { word: string; en: string; hi: string; kn: string; example: string };
-type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string };
+type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string; at?: number }; // at = transcript length when logged
 type Phase = "setup" | "session" | "summary";
 type TranscriptLine = { role: "agent" | "user"; text: string };
 ```
-`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex` (word being taught = after the last logged word, or the latest "N of 5" said by the agent).
+`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES` (incl. `greeting`), `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `findResult` / `upsertResult` (match on letters only: "Follow-up." = "follow up"), `currentIndex` (word being taught = the latest "N of 5" said by the agent, or past a logged word once the learner has spoken after that log).
 
 ### 5.2 Language config
 | LanguageId | `overrides.agent.language` | `{{language}}` value | Meaning field used |
@@ -111,7 +111,7 @@ Tool schemas must match `agent-prompt.md` exactly (names + param names).
 | Word list missing/empty | Agent says the lesson did not load and stops (prompt v3); page should never start without 5 words |
 | Off-topic question | Agent refuses and returns to the current word (prompt v3 "Scope") |
 | Agent logs the same word twice | Replace the earlier entry for that word |
-| `log_result` arrives mid-feedback | Dot updates at once; the word card (`shown` index) only moves when the coach isn't speaking |
+| `log_result` arrives before the feedback is spoken | Dot updates at once; the card stays and shows Learned ✓ / Keep practising + tip; it moves on at "Word N of 5" or the learner's next utterance |
 | Agent skips `log_result` for a word | Card still advances on "Word N of 5"; the dot shows "–"; the summary shows "Not reached" for it. Prompt v4 makes the call mandatory. |
 | Unsupported / in-app browser (no WebRTC) | Advise opening in Chrome/Safari |
 | Kannada voice not fully natural | Kept as spoken Kanglish, labelled **"ಕನ್ನಡ (Beta)"** in the picker (`LANGUAGES.kannada.beta`) — user decision after test 1.6a |

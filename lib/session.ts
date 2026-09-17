@@ -2,7 +2,8 @@ import { TRACKS, type TrackId, type Word } from "./words.ts";
 
 export type { TrackId, Word };
 export type LanguageId = "english" | "hinglish" | "kannada";
-export type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string };
+// at = transcript length when logged (the agent logs before it speaks the feedback)
+export type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string; at?: number };
 export type Phase = "setup" | "session" | "summary";
 export type TranscriptLine = { role: "agent" | "user"; text: string };
 
@@ -54,11 +55,14 @@ export function upsertResult(results: WordResult[], r: WordResult): WordResult[]
   return [...results.filter((x) => norm(x.word) !== norm(r.word)), r];
 }
 
-// Index of the word being taught: after the last logged word, or the latest "Word N of 5" the coach said
-// (fallback for when the agent skips log_result). words.length = all done.
+// Index of the word being taught (words.length = all done). Moves on when the coach says "Word N of 5",
+// or when the learner speaks after a word was logged. Not on the log itself: it arrives before the feedback is spoken.
 export function currentIndex(words: Word[], results: WordResult[], transcript: TranscriptLine[]): number {
   let i = 0;
-  words.forEach((w, idx) => findResult(results, w) && (i = Math.max(i, idx + 1)));
+  words.forEach((w, idx) => {
+    const r = findResult(results, w);
+    if (r && transcript.slice(r.at ?? transcript.length).some((l) => l.role === "user")) i = Math.max(i, idx + 1);
+  });
   for (const line of transcript) {
     const m = line.role === "agent" && line.text.match(/\b(\d)\s*(?:of|\/|में से)\s*\d\b/i);
     if (m) i = Math.max(i, Number(m[1]) - 1);

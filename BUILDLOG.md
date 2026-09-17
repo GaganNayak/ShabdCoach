@@ -6,8 +6,8 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card-timing fix deployed → waiting for **4.11** quick re-check → Phase 5
-- **Next step (user):** 4.11, one session on prod: the word card should change only after the coach finishes the feedback. Then Phase 5 (Kannada session, Android + iPhone).
+- **Phase:** 0–3 done (except 2.4) · Phase 4: live session works; fixes for wrong-answer logging deployed → 4.9 passed; card-timing fix v2 deployed → waiting for **4.13** re-check → Phase 5
+- **Next step (user):** 4.13, 2 words on prod: while the coach gives feedback, the card should stay on the word and show ✓/✗ + tip; it switches when the coach starts the next word. Then Phase 5 (Kannada session, Android + iPhone).
 - **Connection:** `connectionType: "websocket"` (WebRTC was dropped by LiveKit, see the 4.7b entry). Per-language greeting override ON.
 - **ElevenLabs plan:** Starter (75 agent min/mo). Save minutes: avoid headless voice runs; handshake-only WebSocket checks cost ~0.
 - **Test on prod, not localhost** (localhost isn't allowlisted).
@@ -17,6 +17,18 @@ Running log of what was built, for handing off to any AI tool or developer.
 - **Run locally:** `npm install` → `.env.local` with the agent ID → `npm run dev` (UI only; voice needs the prod domain)
 - **Checks:** `npm run build` → `npx tsc --noEmit` → `npm run lint` → `npm test`, chained with `&&`
 - **Gotcha:** the iCloud-synced Desktop creates `* 2.*` duplicates in `.next/` → `rm -rf .next`
+
+---
+
+## 2026-09-17 — Phase 4.11 re-check → 4.12 card timing v2
+- The user's re-check: the card **still** switched to the next word during feedback, for both correct and wrong answers.
+- Corrected diagnosis: the agent emits `log_result` **before** it starts speaking the feedback, so `mode` is still "listening" when the result arrives. Gating on `mode !== "speaking"` (4.10) was based on a wrong assumption and is removed.
+- New rule (`lib/session.ts` `currentIndex`): the card index moves past a logged word only when
+  1. the agent's transcript says "N of 5" (regex, unchanged), or
+  2. a **user** transcript line exists after the log (`WordResult.at` = transcript length at log time, set in `page.tsx` from a `lines` ref counted in `onMessage`).
+- Card UX while the feedback plays: the badge changes from "Now learning" to **Learned ✓** / **Keep practising**, and the tip shows (💡). Dots still update at once.
+- Tests updated: a log alone doesn't advance; advances after a later user line; a user line before the log doesn't count; all-done case. 7/7 ✅ · build ✅ · tsc ✅ · lint ✅.
+- Known limit: if the agent's feedback and "Word N of 5" arrive as **one** transcript message, the card switches when that message arrives (≈ start of that reply). If that still feels early, the next option is `onAudioAlignment` to switch when the audio reaches "Word N".
 
 ---
 

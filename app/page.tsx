@@ -40,6 +40,7 @@ function App() {
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [summary, setSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const lines = useRef(0); // transcript length, read synchronously by log_result
   const heard = useRef(false); // got at least one message → a real session happened
   const ending = useRef(false); // end_session called → hang up once the goodbye finishes
 
@@ -63,6 +64,7 @@ function App() {
     setTranscript([]);
     setSummary(null);
     heard.current = false;
+    lines.current = 0;
     ending.current = false;
     setPhase("session");
 
@@ -90,6 +92,7 @@ function App() {
               recalled: p.recalled === true || p.recalled === "true",
               used_correctly: p.used_correctly === true || p.used_correctly === "true",
               tip: String(p.tip ?? ""),
+              at: lines.current,
             }),
           );
           return "ok";
@@ -103,6 +106,7 @@ function App() {
       },
       onMessage: ({ message, role }) => {
         heard.current = true;
+        lines.current += 1;
         setTranscript((t) => [...t, { role, text: message }]);
       },
       onModeChange: ({ mode }) => {

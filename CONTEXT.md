@@ -144,3 +144,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Upgraded to ElevenLabs Starter. WebRTC sessions still dropped → switched to WebSocket; voice now works on prod with natural per-language greetings.
 - 2026-09-17: First full live session worked ("satisfying"). Wrong answers weren't logged → prompt v4 (mandatory log_result) + UI fallback that advances on "Word N of 5".
 - 2026-09-17: Prompt v4 fixed wrong-answer logging (✗ dots, summary). Word card now waits for the coach to finish speaking before advancing.
+- 2026-09-17: Card timing v2: stays on the word showing ✓/✗ + tip during feedback; advances on "Word N of 5" or the learner's next reply.

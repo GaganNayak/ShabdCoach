@@ -63,7 +63,9 @@ Architecture reference: `ARCHITECTURE.md`.
 - [x] **4.8 (C)** Fix: prompt v4 (log_result mandatory for every word), tolerant word matching, card advances on "Word N of 5"; unlogged words show "–".
 - [x] **4.9 (G)** Paste prompt v4 → Publish → re-run with wrong answers. Result: ✗ dots ✅, card advances ✅, summary ✗ + tips ✅. Bug: card switched before the feedback finished.
 - [x] **4.10 (C)** Fix: the word card only advances when the coach isn't speaking (dots still update at once).
-- [ ] **4.11 (G)** Quick re-check: the card changes only after the feedback is spoken.
+- [x] **4.11 (G)** Re-check → ❌ still switched during feedback (both correct and wrong answers). The log arrives *before* speech starts, so gating on mode didn't help.
+- [x] **4.12 (C)** Fix v2: the card moves only on the coach's "Word N of 5" or when the learner speaks after the log; meanwhile the card shows the result badge + tip.
+- [ ] **4.13 (G)** Re-check the card timing (2 words).
   Phase 4 done when: a full live 5-word session with wrong answers shows ✗ dots, the card advances, and it lands on a correct summary.
 
 ## Phase 5 — Test & harden (~1 h)

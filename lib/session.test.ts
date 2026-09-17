@@ -45,10 +45,13 @@ test("findResult ignores case and punctuation", () => {
 test("currentIndex advances on logs and on 'Word N of 5' even without a log", () => {
   const ws = TRACKS.office.words.slice(0, 5);
   const r = (word: string) => ({ word, recalled: false, used_correctly: false, tip: "" });
+  const user = { role: "user" as const, text: "ok" };
   assert.equal(currentIndex(ws, [], []), 0);
-  assert.equal(currentIndex(ws, [r(ws[0].word), r(ws[1].word)], []), 2);
+  assert.equal(currentIndex(ws, [r(ws[0].word), r(ws[1].word)], []), 0, "a log alone doesn't move the card");
+  assert.equal(currentIndex(ws, [{ ...r(ws[0].word), at: 0 }], [user]), 1, "learner spoke after the log");
+  assert.equal(currentIndex(ws, [{ ...r(ws[0].word), at: 1 }], [user]), 0, "that user line was before the log");
   assert.equal(currentIndex(ws, [r(ws[0].word)], [{ role: "agent", text: "Word 4 of 5: agenda." }]), 3);
   assert.equal(currentIndex(ws, [], [{ role: "agent", text: "शब्द 3 में से 5" }, { role: "user", text: "5 of 5" }]), 2);
-  assert.equal(currentIndex(ws, ws.map((w) => r(w.word)), []), 5);
+  assert.equal(currentIndex(ws, ws.map((w) => ({ ...r(w.word), at: 0 })), [user]), 5);
   assert.equal(currentIndex(ws, [], [{ role: "agent", text: "We handled 15 of 20 calls." }]), 0);
 });
