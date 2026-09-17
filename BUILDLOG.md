@@ -6,13 +6,30 @@ Running log of what was built, for handing off to any AI tool or developer.
 ---
 
 ## ▶ Current state (keep this block updated)
-- **Phase:** 0 — Project setup
-- **Done:** 0.1, 0.2, 0.5
-- **Next step:** 0.3 (user) — create a public GitHub repo and push. Then 0.4 — import into Vercel and note the `*.vercel.app` domain.
-- **Can run in parallel:** Phase 1 (ElevenLabs agent setup, user) and Phase 2 (data & logic, AI)
+- **Phase:** 2 done (except 2.4) → Phase 3 next
+- **Done:** 0.1, 0.2, 0.3, 0.5, 2.1, 2.2, 2.3
+- **Next step:** Phase 3 — UI screens with mock data (AI). Waiting on the user: 0.4 (Vercel deploy + domain), Phase 1 (ElevenLabs agent), 2.4 (Kannada review)
+- **Repo:** https://github.com/GaganNayak/ShabdCoach (branch `main`)
+- **Test:** `npm test`
 - **Blockers:** none
 - **Run locally:** `npm install` → `npm run dev` → http://localhost:3000
 - **Env:** copy `.env.example` → `.env.local` and set `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` (not needed until Phase 4)
+
+---
+
+## 2026-09-17 — Phase 0.3 + 2.1–2.3: GitHub push, word bank, session logic
+**Did**
+- The user added `origin` → https://github.com/GaganNayak/ShabdCoach.git. The remote already had a GitHub "Initial commit" (README + .gitignore), so I merged with `--allow-unrelated-histories -X ours` (kept the local files) and pushed. No force push.
+- **2.1** `words.js` → `lib/words.ts`: exports `Word`, `TRACKS` (checked with `satisfies`), and `TrackId = keyof typeof TRACKS`. Deleted `words.js`.
+- **2.2** `lib/session.ts`: `LanguageId`, `WordResult`, `Phase`, `LANGUAGES` (label, native script name, agentCode en/hi/kn, meaning field), `WORDS_PER_SESSION = 5`, `pickWords` (Fisher-Yates), `buildWordList` (format in ARCHITECTURE §5.3), `upsertResult` (dedupe by word).
+- **2.3** `lib/session.test.ts` using built-in `node:test`. Node 24 strips types, so there's no test dependency. Script: `npm test` → `node --test "lib/**/*.test.ts"`.
+- `tsconfig.json`: added `allowImportingTsExtensions: true`, because Node needs `./words.ts` style imports inside `lib/`. The app can still import `@/lib/session` without an extension.
+
+**Verified:** `npm test` 4/4 ✅ · `tsc --noEmit` ✅ · lint ✅ (0 warnings now) · build ✅
+
+**Notes**
+- `npm test` prints a harmless `MODULE_TYPELESS_PACKAGE_JSON` warning. Ignore it, because adding `"type": "module"` to package.json could affect Next config files.
+- Inside `lib/`, keep the `.ts` extension on relative imports so the tests keep running.
 
 ---
 

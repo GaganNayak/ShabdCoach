@@ -11,7 +11,7 @@ Architecture reference: `ARCHITECTURE.md`.
   Done when: `npm run dev` shows the default page at localhost:3000.
 - [x] **0.2 (C)** `git init`, `.gitignore` (incl. `.env.local`), first commit.
   Done when: `git log` shows the initial commit.
-- [ ] **0.3 (G)** Create a GitHub repo (public) and push.
+- [x] **0.3 (G)** Create a GitHub repo (public) and push.
   Done when: code is visible on GitHub.
 - [ ] **0.4 (G)** Import the repo into Vercel → deploy.
   Done when: a `*.vercel.app` URL loads. **Note the domain; it's needed for the agent allowlist.**
@@ -31,9 +31,9 @@ Architecture reference: `ARCHITECTURE.md`.
 > Phases 2–3 do not need the agent and can run in parallel with Phase 1.
 
 ## Phase 2 — Data & logic (~45 min)
-- [ ] **2.1 (C)** Port `words.js` → `lib/words.ts` with types; delete `words.js`.
-- [ ] **2.2 (C)** `lib/session.ts`: types, `LANGUAGES` config, `pickWords(track, n)`, `buildWordList(words, lang)`.
-- [ ] **2.3 (C)** `lib/session.test.ts`: checks that pickWords returns n unique words from the track and that buildWordList includes the right meaning field.
+- [x] **2.1 (C)** Port `words.js` → `lib/words.ts` with types; delete `words.js`.
+- [x] **2.2 (C)** `lib/session.ts`: types, `LANGUAGES` config, `pickWords(track, n)`, `buildWordList(words, lang)`.
+- [x] **2.3 (C)** `lib/session.test.ts`: checks that pickWords returns n unique words from the track and that buildWordList includes the right meaning field.
   Done when: the test passes.
 - [ ] **2.4 (G)** Kannada meanings reviewed by a native speaker; fixes applied.
 

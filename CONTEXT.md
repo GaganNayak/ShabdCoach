@@ -129,3 +129,4 @@ Summary: Next.js (App Router, TS, Tailwind) on Vercel + `@elevenlabs/react` SDK 
 - 2026-09-17: Architecture decided (Next.js + ElevenLabs React SDK, no backend). ARCHITECTURE.md + BUILDPLAN.md created; CONTEXT §5.1/§6 now point to them.
 - 2026-09-17: Phase 0.1–0.2 done (Next.js 16 scaffold + git). BUILDLOG.md started for handoff.
 - 2026-09-17: shadcn/ui added as the UI component library (user request).
+- 2026-09-17: Pushed to GitHub (GaganNayak/ShabdCoach). Phase 2.1–2.3 done (lib/words.ts, lib/session.ts, tests).

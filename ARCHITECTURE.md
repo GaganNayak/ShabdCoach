@@ -63,7 +63,7 @@ voice-agent/
 │  ├─ utils.ts            # shadcn `cn()` helper
 │  ├─ words.ts            # TRACKS word bank (ported from words.js)
 │  ├─ session.ts          # pickWords, buildWordList, LANGUAGES config, types
-│  └─ session.test.ts     # one small check for session.ts
+│  └─ session.test.ts     # `npm test` (node:test, no deps)
 ├─ agent-prompt.md        # source of truth for the agent's dashboard config
 ├─ components.json        # shadcn config
 ├─ .env.local             # NEXT_PUBLIC_ELEVENLABS_AGENT_ID=...
@@ -80,6 +80,7 @@ type Word = { word: string; en: string; hi: string; kn: string; example: string 
 type WordResult = { word: string; recalled: boolean; used_correctly: boolean; tip: string };
 type Phase = "setup" | "session" | "summary";
 ```
+`Word` and `TrackId` are defined in `lib/words.ts` and re-exported. Also exported: `LANGUAGES`, `WORDS_PER_SESSION` (5), `pickWords`, `buildWordList`, `upsertResult` (dedupe by word, case-insensitive).
 
 ### 5.2 Language config
 | LanguageId | `overrides.agent.language` | `{{language}}` value | Meaning field used |

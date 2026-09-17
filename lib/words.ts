@@ -1,5 +1,7 @@
-// Word bank: 4 job tracks × 10 words. Kannada meanings need a native-speaker check before launch.
-const TRACKS = {
+// Word bank: 4 job tracks × 10 words. Kannada meanings need a native-speaker check before launch (BUILDPLAN 2.4).
+export type Word = { word: string; en: string; hi: string; kn: string; example: string };
+
+export const TRACKS = {
   interview: {
     label: "Interview basics",
     words: [
@@ -60,4 +62,6 @@ const TRACKS = {
       { word: "update", en: "the latest information", hi: "nayi jaankari", kn: "ಇತ್ತೀಚಿನ ಮಾಹಿತಿ", example: "Can you give me an update on the order?" },
     ],
   },
-};
+} satisfies Record<string, { label: string; words: Word[] }>;
+
+export type TrackId = keyof typeof TRACKS;
